@@ -70,18 +70,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="bg-red-600 p-4 text-white text-center">
-  NAV BAR WORKING
-</div>
-
           <main className="flex-1">
             {children}
           </main>
 
           <Footer />
-          <div className="bg-blue-600 p-4 text-white text-center">
-  THIS IS FOOTER
-</div>
         </ThemeProvider>
       </body>
     </html>
