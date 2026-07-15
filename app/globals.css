@@ -128,3 +128,27 @@
     @apply font-sans;
   }
 }
+
+@keyframes technology-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.75rem));
+  }
+}
+
+.technology-marquee {
+  animation: technology-marquee 30s linear infinite;
+}
+
+.technology-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .technology-marquee {
+    animation: none;
+  }
+}
