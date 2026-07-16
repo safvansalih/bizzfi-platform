@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { WhatsAppButton } from "@/components/common/whatsapp-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,18 +65,21 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
+  attribute="class"
+  defaultTheme="system"
+  enableSystem
+  disableTransitionOnChange
+>
+  <Header />
 
-          <Footer />
-        </ThemeProvider>
+  <main className="flex-1">
+    {children}
+  </main>
+
+  <Footer />
+
+  <WhatsAppButton />
+</ThemeProvider>
       </body>
     </html>
   );

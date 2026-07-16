@@ -1,36 +1,56 @@
 import Link from "next/link";
 
-import { navigation } from "@/config/navigation";
+import { DesktopNavigation } from "@/components/layout/desktop-navigation";
+import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { siteConfig } from "@/constants/site";
-
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { SearchButton } from "@/components/layout/search-button";
+import { PortalButton } from "@/components/layout/portal-button";
+import { LanguageSelector } from "@/components/layout/language-selector";
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold tracking-tight">
-          {siteConfig.name}
-        </Link>
+        <Link
+  href="/"
+  className="relative z-10 text-2xl font-bold tracking-tight text-foreground"
+>
+  {siteConfig.name}
+</Link>
 
-        {/* Navigation */}
-        <nav className="hidden gap-8 md:flex">
-          {navigation.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className="text-sm font-medium transition hover:text-blue-600"
-            >
-              {item.title}
-            </Link>
-          ))}
-        </nav>
+        {/* Desktop Navigation */}
+        <DesktopNavigation />
 
-        {/* CTA */}
-        <button className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-          {siteConfig.cta.primary}
-        </button>
+       {/* Right Actions */}
+<div className="flex items-center gap-2">
+  {/* Search - Desktop & Mobile */}
+  <SearchButton />
 
+  {/* Desktop Language */}
+  <div className="hidden lg:block">
+    <LanguageSelector />
+  </div>
+
+  {/* Desktop Customer Portal */}
+  <div className="hidden lg:block">
+    <PortalButton />
+  </div>
+
+  {/* Theme Toggle - Desktop & Mobile */}
+  <ThemeToggle />
+
+  {/* Desktop CTA */}
+  <Link
+    href="/contact"
+    className="hidden rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-500 lg:inline-flex"
+  >
+    {siteConfig.cta.primary}
+  </Link>
+
+  {/* Mobile Navigation */}
+  <MobileNavigation />
+</div>
       </div>
     </header>
   );
