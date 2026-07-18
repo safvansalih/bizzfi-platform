@@ -11,6 +11,7 @@ import { motion } from "motion/react";
 
 import { heroData } from "./hero-data";
 import { HeroBackground } from "./hero-background";
+import Link from "next/link";
 
 
 export function Hero() {
@@ -78,32 +79,32 @@ export function Hero() {
           className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           {/* Primary CTA */}
-          <button
-            type="button"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
-          >
-            <Calendar className="h-5 w-5" aria-hidden="true" />
+          <Link
+  href="/book-consultation"
+  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
+>
+  <Calendar className="h-5 w-5" aria-hidden="true" />
 
-            <span>{heroData.primaryButton}</span>
+  <span>{heroData.primaryButton}</span>
 
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-              aria-hidden="true"
-            />
-          </button>
+  <ArrowRight
+    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+    aria-hidden="true"
+  />
+</Link>
 
           {/* Secondary CTA */}
-          <button
-            type="button"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-4 font-medium text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
-          >
-            <span>{heroData.secondaryButton}</span>
+          <Link
+  href="/contact"
+  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-4 font-medium text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
+>
+  <span>{heroData.secondaryButton}</span>
 
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-              aria-hidden="true"
-            />
-          </button>
+  <ArrowRight
+    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+    aria-hidden="true"
+  />
+</Link>
         </motion.div>
 
         {/* Statistics */}

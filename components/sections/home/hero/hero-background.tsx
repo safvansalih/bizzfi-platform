@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 
+
 export function HeroBackground() {
   return (
     <div

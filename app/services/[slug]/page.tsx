@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -150,17 +151,17 @@ const longDescription =
                 </div>
               </div>
 
-              <a
-                href="/contact"
-                className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-500"
-              >
-                Request a Consultation
+              <Link
+  href="/book-consultation"
+  className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-500"
+>
+  Book Free IT Consultation
 
-                <ArrowRight
-                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </a>
+  <ArrowRight
+    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+    aria-hidden="true"
+  />
+</Link>
             </div>
           </div>
         </div>

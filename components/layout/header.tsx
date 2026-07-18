@@ -40,13 +40,13 @@ export function Header() {
   {/* Theme Toggle - Desktop & Mobile */}
   <ThemeToggle />
 
-  {/* Desktop CTA */}
-  <Link
-    href="/contact"
-    className="hidden rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-500 lg:inline-flex"
-  >
-    {siteConfig.cta.primary}
-  </Link>
+  {/* CTA */}
+<Link
+  href="/book-consultation"
+  className="hidden items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 lg:inline-flex"
+>
+  {siteConfig.cta.primary}
+</Link>
 
   {/* Mobile Navigation */}
   <MobileNavigation />

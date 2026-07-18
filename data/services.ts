@@ -14,20 +14,24 @@ import {
 } from "lucide-react";
 
 export const services = [
+ {
+  slug: "website-development",
+  title: "Website Development",
+  description:
+    "Fast, scalable and conversion-focused websites built for modern businesses.",
+  longDescription:
+    "We design and develop modern, high-performance websites that help businesses build a strong digital presence, communicate their value and convert visitors into customers.",
+  icon: Code2,
+},
   {
-    slug: "website-development",
-    title: "Website Development",
-    description:
-      "Fast, scalable and conversion-focused websites built for modern businesses.",
-    icon: Code2,
-  },
-  {
-    slug: "mobile-app-development",
-    title: "Mobile App Development",
-    description:
-      "Modern mobile applications designed to deliver seamless digital experiences.",
-    icon: Smartphone,
-  },
+  slug: "mobile-app-development",
+  title: "Mobile App Development",
+  description:
+    "Modern mobile applications designed to deliver seamless digital experiences.",
+  longDescription:
+    "We build scalable and user-focused mobile applications that help businesses deliver better customer experiences and create powerful digital products.",
+  icon: Smartphone,
+},
   {
     slug: "ecommerce-development",
     title: "E-commerce Development",
@@ -43,12 +47,14 @@ export const services = [
     icon: Megaphone,
   },
   {
-    slug: "cloud-solutions",
-    title: "Cloud Solutions",
-    description:
-      "Secure and scalable cloud infrastructure, migration and business productivity solutions.",
-    icon: Cloud,
-  },
+  slug: "cloud-solutions",
+  title: "Cloud Solutions",
+  description:
+    "Secure and scalable cloud infrastructure, migration and business productivity solutions.",
+  longDescription:
+    "We help businesses adopt secure, scalable and reliable cloud technologies designed to improve accessibility, collaboration, performance and business continuity.",
+  icon: Cloud,
+},
   {
     slug: "erp-crm",
     title: "ERP & CRM Solutions",
@@ -98,6 +104,7 @@ export const services = [
       "Smart surveillance and security solutions for modern business environments.",
     icon: Video,
   },
+  
 ];
 
 export type Service = (typeof services)[number];
