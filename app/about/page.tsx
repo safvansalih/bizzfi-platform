@@ -8,8 +8,28 @@ import { CoreStrengths } from "@/components/about/core-strengths";
 
 export const metadata: Metadata = {
   title: "About Us",
+
   description:
-    "Learn about Bizzfi, a complete digital business solutions company helping businesses transform and grow through modern technology and enterprise solutions.",
+    "Learn about Bizzfi, a complete digital business solutions company helping businesses transform, scale and grow through modern technology, intelligent automation and enterprise solutions.",
+
+  alternates: {
+    canonical: "/about",
+  },
+
+  openGraph: {
+    title: "About Bizzfi | Complete Digital Business Solutions",
+    description:
+      "Learn how Bizzfi helps businesses transform and grow through modern digital technology, intelligent automation and enterprise solutions.",
+    url: "/about",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "About Bizzfi | Complete Digital Business Solutions",
+    description:
+      "Discover Bizzfi and our approach to helping businesses transform, scale and grow with modern technology.",
+  },
 };
 
 export default function AboutPage() {
@@ -80,10 +100,12 @@ export default function AboutPage() {
 
       {/* Company Overview */}
       <CompanyOverview />
+
       {/* Mission, Vision & Core Values */}
-<MissionVision />
-{/* Why Bizzfi / Core Strengths */}
-<CoreStrengths />
+      <MissionVision />
+
+      {/* Why Bizzfi / Core Strengths */}
+      <CoreStrengths />
     </>
   );
 }

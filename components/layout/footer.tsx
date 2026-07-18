@@ -1,9 +1,9 @@
 import Link from "next/link";
 import {
+  ArrowUpRight,
   Mail,
   MapPin,
   Phone,
-  ArrowUpRight,
 } from "lucide-react";
 
 const companyLinks = [
@@ -29,33 +29,32 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-black text-white">
+    <footer className="border-t border-border bg-muted/20 text-foreground dark:border-white/10 dark:bg-black dark:text-white">
       {/* Main Footer */}
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          
           {/* Company */}
           <div>
             <Link
               href="/"
-              className="text-2xl font-bold tracking-tight"
+              className="text-2xl font-bold tracking-tight text-foreground transition-colors hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-white dark:hover:text-blue-400"
             >
               Bizzfi
             </Link>
 
-            <p className="mt-5 max-w-sm text-sm leading-7 text-gray-400">
+            <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
               Complete digital business solutions powered by technology,
               innovation and enterprise expertise.
             </p>
 
-            <p className="mt-4 text-xs leading-6 text-gray-500">
+            <p className="mt-4 text-xs leading-6 text-muted-foreground">
               Powered by KL10SOUQ ENTERPRISES LLP
             </p>
           </div>
 
           {/* Company Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white">
+            <h3 className="text-sm font-semibold text-foreground dark:text-white">
               Company
             </h3>
 
@@ -64,7 +63,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="group inline-flex items-center gap-1 text-sm text-gray-400 transition-colors hover:text-blue-400"
+                    className="group inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-400"
                   >
                     {link.title}
 
@@ -80,7 +79,7 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-sm font-semibold text-white">
+            <h3 className="text-sm font-semibold text-foreground dark:text-white">
               Solutions
             </h3>
 
@@ -89,7 +88,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-gray-400 transition-colors hover:text-blue-400"
+                    className="text-sm text-muted-foreground transition-colors hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-400"
                   >
                     {link.title}
                   </Link>
@@ -100,14 +99,14 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-sm font-semibold text-white">
+            <h3 className="text-sm font-semibold text-foreground dark:text-white">
               Get in Touch
             </h3>
 
             <div className="mt-5 space-y-4">
               <a
                 href="tel:+916235562622"
-                className="flex items-start gap-3 text-sm text-gray-400 transition-colors hover:text-blue-400"
+                className="flex items-start gap-3 text-sm text-muted-foreground transition-colors hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-400"
               >
                 <Phone
                   className="mt-0.5 h-4 w-4 shrink-0"
@@ -119,7 +118,7 @@ export function Footer() {
 
               <a
                 href="mailto:info@bizzfi.com"
-                className="flex items-start gap-3 text-sm text-gray-400 transition-colors hover:text-blue-400"
+                className="flex items-start gap-3 text-sm text-muted-foreground transition-colors hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-400"
               >
                 <Mail
                   className="mt-0.5 h-4 w-4 shrink-0"
@@ -129,7 +128,7 @@ export function Footer() {
                 <span>info@bizzfi.com</span>
               </a>
 
-              <div className="flex items-start gap-3 text-sm leading-6 text-gray-400">
+              <div className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
                 <MapPin
                   className="mt-1 h-4 w-4 shrink-0"
                   aria-hidden="true"
@@ -147,9 +146,8 @@ export function Footer() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-          
+      <div className="border-t border-border dark:border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} Bizzfi. All rights reserved.
           </p>
@@ -159,7 +157,7 @@ export function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-white"
               >
                 {link.title}
               </Link>

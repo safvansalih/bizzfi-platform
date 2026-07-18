@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   ArrowRight,
   Calendar,
@@ -9,10 +10,8 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-import { heroData } from "./hero-data";
 import { HeroBackground } from "./hero-background";
-import Link from "next/link";
-
+import { heroData } from "./hero-data";
 
 export function Hero() {
   return (
@@ -31,7 +30,7 @@ export function Hero() {
             ease: "easeOut",
           }}
         >
-          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm backdrop-blur-md">
+          <span className="inline-flex items-center rounded-full border border-border bg-background/60 px-4 py-2 text-sm text-foreground backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             {heroData.badge}
           </span>
         </motion.div>
@@ -45,7 +44,7 @@ export function Hero() {
             delay: 0.15,
             ease: "easeOut",
           }}
-          className="mx-auto mt-8 max-w-5xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          className="mx-auto mt-8 max-w-5xl text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
         >
           Transform Your Business with{" "}
           <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500 bg-clip-text text-transparent">
@@ -80,31 +79,31 @@ export function Hero() {
         >
           {/* Primary CTA */}
           <Link
-  href="/book-consultation"
-  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
->
-  <Calendar className="h-5 w-5" aria-hidden="true" />
+            href="/book-consultation"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto"
+          >
+            <Calendar className="h-5 w-5" aria-hidden="true" />
 
-  <span>{heroData.primaryButton}</span>
+            <span>{heroData.primaryButton}</span>
 
-  <ArrowRight
-    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-    aria-hidden="true"
-  />
-</Link>
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            />
+          </Link>
 
           {/* Secondary CTA */}
           <Link
-  href="/contact"
-  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-4 font-medium text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-auto"
->
-  <span>{heroData.secondaryButton}</span>
+            href="/contact"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background/60 px-7 py-4 font-medium text-foreground backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/40 hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/20 dark:hover:bg-white/10 sm:w-auto"
+          >
+            <span>{heroData.secondaryButton}</span>
 
-  <ArrowRight
-    className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-    aria-hidden="true"
-  />
-</Link>
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            />
+          </Link>
         </motion.div>
 
         {/* Statistics */}
@@ -125,7 +124,7 @@ export function Hero() {
             return (
               <div
                 key={item.label}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-white/[0.07] hover:shadow-xl hover:shadow-blue-500/10"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-background/60 p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-muted/50 hover:shadow-xl hover:shadow-blue-500/10 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.07]"
               >
                 {/* Hover Glow */}
                 <div
@@ -135,13 +134,13 @@ export function Hero() {
 
                 <div className="relative flex items-center gap-4 sm:flex-col sm:text-center">
                   {/* Icon */}
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-blue-400 transition-colors duration-300 group-hover:border-blue-500/30 group-hover:bg-blue-500/10">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/50 text-blue-500 transition-colors duration-300 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-blue-400">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
 
                   {/* Content */}
                   <div>
-                    <div className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    <div className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                       {item.value}
                     </div>
 

@@ -7,8 +7,7 @@ export function FinalCTA() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-16 text-center shadow-2xl backdrop-blur-xl sm:px-12 sm:py-20">
-          
+        <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-muted/30 px-6 py-16 text-center shadow-2xl backdrop-blur-xl sm:px-12 sm:py-20 dark:border-white/10 dark:bg-white/[0.03]">
           {/* Background Effects */}
           <div
             className="pointer-events-none absolute left-1/2 top-[-200px] -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[140px]"
@@ -21,12 +20,12 @@ export function FinalCTA() {
           />
 
           {/* Badge */}
-          <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-blue-400 backdrop-blur-md">
+          <div className="inline-flex rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-blue-600 backdrop-blur-md dark:border-white/10 dark:bg-white/5 dark:text-blue-400">
             Ready to Transform Your Business?
           </div>
 
           {/* Heading */}
-          <h2 className="mx-auto mt-6 max-w-4xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="mx-auto mt-6 max-w-4xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             Let&apos;s Build the Future of{" "}
             <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500 bg-clip-text text-transparent">
               Your Business
@@ -42,11 +41,10 @@ export function FinalCTA() {
 
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            
             {/* Primary CTA */}
             <Link
               href="/contact"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:w-auto"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-medium text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto"
             >
               <Calendar className="h-5 w-5" aria-hidden="true" />
 
@@ -61,7 +59,7 @@ export function FinalCTA() {
             {/* Secondary CTA */}
             <Link
               href="/contact?type=quote"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-4 font-medium text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background/60 px-7 py-4 font-medium text-foreground backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/40 hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/20 dark:hover:bg-white/10 sm:w-auto"
             >
               <span>{siteConfig.cta.secondary}</span>
 

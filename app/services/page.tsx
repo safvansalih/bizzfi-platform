@@ -6,8 +6,28 @@ import { ServicesGrid } from "@/components/services/services-grid";
 
 export const metadata: Metadata = {
   title: "Services",
+
   description:
-    "Explore Bizzfi digital business solutions including website development, mobile apps, cloud, ERP, CRM, IT infrastructure, cyber security and AI automation.",
+    "Explore Bizzfi digital business and technology solutions including website development, mobile apps, AI automation, ERP, CRM, cloud infrastructure, cyber security and managed IT services.",
+
+  alternates: {
+    canonical: "/services",
+  },
+
+  openGraph: {
+    title: "Technology & Digital Business Services | Bizzfi",
+    description:
+      "Explore Bizzfi solutions for website development, mobile apps, AI automation, ERP, CRM, cloud infrastructure, cyber security and managed IT services.",
+    url: "/services",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Technology & Digital Business Services | Bizzfi",
+    description:
+      "Explore technology and digital business solutions designed to help modern businesses transform, operate and grow.",
+  },
 };
 
 export default function ServicesPage() {

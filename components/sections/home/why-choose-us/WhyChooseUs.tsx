@@ -13,14 +13,13 @@ export function WhyChooseUs() {
 
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-center gap-16 lg:grid-cols-2">
-          
           {/* Left Content */}
           <div>
-            <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-400">
+            <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400">
               Why Choose Bizzfi
             </span>
 
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Technology Built Around{" "}
               <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500 bg-clip-text text-transparent">
                 Your Business
@@ -45,7 +44,7 @@ export function WhyChooseUs() {
                   key={benefit}
                   className="flex items-start gap-3 text-sm text-muted-foreground sm:text-base"
                 >
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400">
                     <Check className="h-4 w-4" aria-hidden="true" />
                   </div>
 
@@ -63,19 +62,26 @@ export function WhyChooseUs() {
               return (
                 <div
                   key={item.title}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-blue-500/10"
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-background/60 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:bg-muted/50 hover:shadow-xl hover:shadow-blue-500/10 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
                 >
-                  <div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-blue-500/0 blur-3xl transition-all duration-500 group-hover:bg-blue-500/20" />
+                  {/* Background Glow */}
+                  <div
+                    className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-blue-500/0 blur-3xl transition-all duration-500 group-hover:bg-blue-500/20"
+                    aria-hidden="true"
+                  />
 
                   <div className="relative">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-blue-400 transition-all duration-300 group-hover:border-blue-500/30 group-hover:bg-blue-500/10">
+                    {/* Icon */}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted/50 text-blue-500 transition-all duration-300 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-blue-400">
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
 
-                    <h3 className="mt-5 text-lg font-semibold text-white">
+                    {/* Title */}
+                    <h3 className="mt-5 text-lg font-semibold text-foreground">
                       {item.title}
                     </h3>
 
+                    {/* Description */}
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">
                       {item.description}
                     </p>

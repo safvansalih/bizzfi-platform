@@ -23,10 +23,11 @@ export function DesktopNavigation() {
           <Link
             key={item.href}
             href={item.href}
-            className={`relative py-2 text-sm font-medium transition-colors duration-300 ${
+            aria-current={isActive ? "page" : undefined}
+            className={`relative rounded-sm py-2 text-sm font-medium transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
               isActive
-                ? "text-blue-400"
-                : "text-muted-foreground hover:text-white"
+                ? "text-blue-600 dark:text-blue-400"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {item.title}

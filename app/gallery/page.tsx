@@ -6,8 +6,28 @@ import { PortfolioGrid } from "@/components/gallery/portfolio-grid";
 
 export const metadata: Metadata = {
   title: "Gallery & Portfolio",
+
   description:
-    "Explore Bizzfi technology, digital transformation, cloud, enterprise, automation and creative project capabilities.",
+    "Explore Bizzfi projects and capabilities across digital transformation, technology, cloud infrastructure, enterprise solutions, automation and creative digital experiences.",
+
+  alternates: {
+    canonical: "/gallery",
+  },
+
+  openGraph: {
+    title: "Gallery & Portfolio | Bizzfi",
+    description:
+      "Explore Bizzfi technology, digital transformation, cloud, enterprise, automation and creative project capabilities.",
+    url: "/gallery",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Gallery & Portfolio | Bizzfi",
+    description:
+      "Discover how Bizzfi combines technology, digital strategy and creative thinking to build solutions for modern businesses.",
+  },
 };
 
 export default function GalleryPage() {

@@ -63,7 +63,7 @@ export function LanguageSelector() {
       <button
         type="button"
         onClick={() => setIsOpen((previous) => !previous)}
-        className="flex h-10 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-medium text-white transition-all duration-300 hover:border-blue-500/30 hover:bg-white/10 hover:text-blue-400"
+        className="flex h-10 items-center justify-center gap-1.5 rounded-lg border border-border bg-background/60 px-3 text-sm font-medium text-foreground transition-all duration-300 hover:border-blue-500/30 hover:bg-muted hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:hover:text-blue-400"
         aria-label="Select language"
         aria-expanded={isOpen}
         aria-haspopup="menu"
@@ -85,8 +85,9 @@ export function LanguageSelector() {
       {/* Language Dropdown */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full z-[80] mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-950 p-1.5 shadow-2xl"
+          className="absolute right-0 top-full z-[80] mt-2 w-44 overflow-hidden rounded-xl border border-border bg-background p-1.5 shadow-2xl dark:border-white/10 dark:bg-zinc-950"
           role="menu"
+          aria-label="Language options"
         >
           {languages.map((language) => {
             const isSelected = selectedLanguage === language.code;
@@ -96,17 +97,20 @@ export function LanguageSelector() {
                 key={language.code}
                 type="button"
                 onClick={() => handleLanguageChange(language.code)}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                   isSelected
-                    ? "bg-blue-500/10 text-blue-400"
-                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
                 role="menuitem"
               >
                 <span>{language.label}</span>
 
                 {isSelected && (
-                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <Check
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             );
