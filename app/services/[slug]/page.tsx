@@ -31,15 +31,31 @@ export async function generateMetadata({
   if (!service) {
     return {
       title: "Service Not Found",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
+
+  const canonicalPath = `/services/${service.slug}`;
 
   return {
     title: service.title,
     description: service.description,
+
+    alternates: {
+      canonical: canonicalPath,
+    },
+
+    openGraph: {
+      title: service.title,
+      description: service.description,
+      url: canonicalPath,
+      type: "website",
+    },
   };
 }
-
 export default async function ServicePage({
   params,
 }: ServicePageProps) {
