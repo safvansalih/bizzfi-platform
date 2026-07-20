@@ -4,7 +4,7 @@ import { blogPosts } from "@/data/blog";
 import { services } from "@/data/services";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://bizzfi.com";
+  const baseUrl = "https://www.bizzfi.com";
 
   const staticPages: MetadataRoute.Sitemap = [
     {

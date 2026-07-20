@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bizzfi.com"),
+  metadataBase: new URL("https://www.bizzfi.com"),
 
   applicationName: "Bizzfi",
 
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   authors: [
     {
       name: "Bizzfi",
-      url: "https://bizzfi.com",
+      url: "https://www.bizzfi.com",
     },
   ],
 

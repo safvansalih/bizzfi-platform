@@ -3,7 +3,7 @@ export function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Bizzfi",
-    url: "https://bizzfi.com",
+    url: "https://www.bizzfi.com",
     description:
       "Bizzfi provides digital business and technology solutions including website development, mobile apps, AI automation, ERP, CRM, cloud infrastructure, cyber security, digital marketing and managed IT services.",
 sameAs: [
