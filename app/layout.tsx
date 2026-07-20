@@ -77,31 +77,31 @@ export const metadata: Metadata = {
     },
   },
 
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "/",
-    siteName: "Bizzfi",
-    title: "Bizzfi | Complete Digital Business Solutions",
-    description:
-      "Digital business and technology solutions including AI automation, cloud infrastructure, ERP, CRM, web development, cyber security and managed IT services.",
-      images: [
-  {
-    url: "/og-image.png",
-    width: 1200,
-    height: 630,
-    alt: "Bizzfi - Complete Digital Business Solutions",
-  },
-],
-  },
+ openGraph: {
+  type: "website",
+  locale: "en_US",
+  url: "/",
+  siteName: "Bizzfi",
+  title: "Bizzfi | Complete Digital Business Solutions",
+  description:
+    "Digital business and technology solutions including AI automation, cloud infrastructure, ERP, CRM, web development, cyber security and managed IT services.",
+  images: [
+    {
+      url: "/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: "Bizzfi - Complete Digital Business Solutions",
+    },
+  ],
+},
 
-  twitter: {
-    card: "summary_large_image",
-    title: "Bizzfi | Complete Digital Business Solutions",
-    description:
-      "Digital business and technology solutions for modern and growing businesses.",
-      images: ["/og-image.png"],
-  },
+twitter: {
+  card: "summary_large_image",
+  title: "Bizzfi | Complete Digital Business Solutions",
+  description:
+    "Digital business and technology solutions for modern and growing businesses.",
+  images: ["/og-image.png"],
+},
 
   category: "technology",
 };
