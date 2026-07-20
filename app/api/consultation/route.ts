@@ -1,5 +1,5 @@
+import { prisma } from "@/lib/db/prisma";
 import { apiJsonResponse } from "@/lib/security/api-response";
-
 import { sendEmail } from "@/lib/email/send-email";
 import {
   getClientIp,
@@ -69,7 +69,8 @@ export async function POST(request: Request) {
       const retryAfter = Math.max(
         1,
         Math.ceil(
-          (rateLimitResult.resetTime - Date.now()) / 1000
+          (rateLimitResult.resetTime - Date.now()) /
+            1000
         )
       );
 
@@ -132,7 +133,8 @@ export async function POST(request: Request) {
         return apiJsonResponse(
           {
             success: false,
-            message: "Request payload is too large.",
+            message:
+              "Request payload is too large.",
           },
           {
             status: 413,
@@ -155,7 +157,8 @@ export async function POST(request: Request) {
       return apiJsonResponse(
         {
           success: false,
-          message: "Invalid JSON request body.",
+          message:
+            "Invalid JSON request body.",
         },
         {
           status: 400,
@@ -208,7 +211,7 @@ export async function POST(request: Request) {
      *
      * Real users should never fill this field.
      * If a bot fills it, return a fake success response
-     * without validation or sending an email.
+     * without validation, database save, or email.
      */
     if (website) {
       if (
@@ -332,20 +335,62 @@ export async function POST(request: Request) {
     }
 
     /**
-     * Validate date and prevent past dates.
+     * Parse date components.
+     *
+     * The form sends a calendar-only value:
+     * YYYY-MM-DD
+     */
+    const [year, month, day] =
+      preferredDate
+        .split("-")
+        .map(Number);
+
+    /**
+     * Create local date for validation.
+     *
+     * This is used only to compare the selected
+     * calendar date against today's local date.
      */
     const requestedDate = new Date(
-      `${preferredDate}T00:00:00`
+      year,
+      month - 1,
+      day
     );
 
+    /**
+     * Verify that the parsed date is a real
+     * calendar date.
+     *
+     * For example, reject values such as
+     * 2026-02-31.
+     */
+    const isValidCalendarDate =
+      !Number.isNaN(requestedDate.getTime()) &&
+      requestedDate.getFullYear() === year &&
+      requestedDate.getMonth() === month - 1 &&
+      requestedDate.getDate() === day;
+
+    if (!isValidCalendarDate) {
+      return apiJsonResponse(
+        {
+          success: false,
+          message:
+            "Please select a valid preferred date.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /**
+     * Prevent past dates.
+     */
     const today = new Date();
 
     today.setHours(0, 0, 0, 0);
 
-    if (
-      Number.isNaN(requestedDate.getTime()) ||
-      requestedDate < today
-    ) {
+    if (requestedDate < today) {
       return apiJsonResponse(
         {
           success: false,
@@ -357,6 +402,22 @@ export async function POST(request: Request) {
         }
       );
     }
+
+    /**
+     * Create a UTC-safe date for PostgreSQL.
+     *
+     * The Prisma field is mapped to PostgreSQL DATE.
+     * Using UTC prevents timezone conversion from
+     * shifting the selected date to the previous day.
+     */
+    const databasePreferredDate =
+      new Date(
+        Date.UTC(
+          year,
+          month - 1,
+          day
+        )
+      );
 
     // Field length protection
     if (
@@ -388,7 +449,8 @@ export async function POST(request: Request) {
       preferredDate,
       preferredTime,
       message,
-      createdAt: new Date().toISOString(),
+      createdAt:
+        new Date().toISOString(),
     };
 
     /**
@@ -404,13 +466,10 @@ export async function POST(request: Request) {
         {
           topic:
             consultationRequest.topic,
-
           preferredDate:
             consultationRequest.preferredDate,
-
           preferredTime:
             consultationRequest.preferredTime,
-
           createdAt:
             consultationRequest.createdAt,
         }
@@ -418,14 +477,59 @@ export async function POST(request: Request) {
     }
 
     /**
-     * Send consultation notification email
-     * to the configured Bizzfi inbox.
+     * Save consultation request to PostgreSQL.
+     *
+     * company is stored as null when the
+     * optional field is left empty.
      */
-    await sendEmail({
-      subject:
-        `New Consultation Request: ${topic}`,
+    const savedConsultation =
+      await prisma.consultationRequest.create({
+        data: {
+          name,
+          company: company || null,
+          email,
+          phone,
+          topic,
+          preferredDate:
+            databasePreferredDate,
+          preferredTime,
+          message,
+        },
+      });
 
-      replyTo: email,
+    if (
+      process.env.NODE_ENV === "development"
+    ) {
+      console.log(
+        "Consultation request saved to database:",
+        {
+          id:
+            savedConsultation.id,
+          topic:
+            savedConsultation.topic,
+          preferredDate:
+            savedConsultation.preferredDate,
+          preferredTime:
+            savedConsultation.preferredTime,
+          createdAt:
+            savedConsultation.createdAt,
+        }
+      );
+    }
+/**
+ * Send consultation notification email.
+ *
+ * Email is a secondary operation.
+ * If email delivery fails, the consultation request
+ * remains safely stored in PostgreSQL and the user
+ * still receives a successful response.
+ */
+try {
+  await sendEmail({
+    subject:
+      `New Consultation Request: ${topic}`,
+
+    replyTo: email,
 
       html: `
         <div
@@ -579,18 +683,30 @@ export async function POST(request: Request) {
         </div>
       `,
     });
-
+} catch (emailError) {
+  /**
+   * Do not fail the entire submission if the
+   * notification email cannot be delivered.
+   *
+   * The consultation request has already
+   * been safely stored in PostgreSQL.
+   */
+  console.error(
+    "Consultation request saved, but email notification failed:",
+    emailError
+  );
+}
     // Successful API response
     return apiJsonResponse(
-      {
-        success: true,
-        message:
-          "Your consultation request has been received successfully.",
-      },
-      {
-        status: 201,
-      }
-    );
+  {
+    success: true,
+    message:
+      "Your consultation request has been received successfully.",
+  },
+  {
+    status: 201,
+  }
+);
   } catch (error) {
     console.error(
       "Consultation API error:",

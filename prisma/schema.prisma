@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ContactEnquiry {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(100)
+  company   String?  @db.VarChar(150)
+  email     String   @db.VarChar(254)
+  phone     String   @db.VarChar(20)
+  service   String   @db.VarChar(100)
+  message   String   @db.Text
+  status    String   @default("NEW") @db.VarChar(30)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([service])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_enquiries")
+}
+
+model ConsultationRequest {
+  id            String   @id @default(cuid())
+  name          String   @db.VarChar(100)
+  company       String?  @db.VarChar(150)
+  email         String   @db.VarChar(254)
+  phone         String   @db.VarChar(20)
+  topic         String   @db.VarChar(100)
+  preferredDate DateTime @db.Date
+  preferredTime String   @db.VarChar(30)
+  message       String   @db.Text
+  status        String   @default("NEW") @db.VarChar(30)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([topic])
+  @@index([status])
+  @@index([preferredDate])
+  @@index([createdAt])
+  @@map("consultation_requests")
+}

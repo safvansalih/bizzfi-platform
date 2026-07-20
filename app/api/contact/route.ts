@@ -1,5 +1,5 @@
+import { prisma } from "@/lib/db/prisma";
 import { apiJsonResponse } from "@/lib/security/api-response";
-
 import { sendEmail } from "@/lib/email/send-email";
 import {
   getClientIp,
@@ -62,7 +62,8 @@ export async function POST(request: Request) {
       const retryAfter = Math.max(
         1,
         Math.ceil(
-          (rateLimitResult.resetTime - Date.now()) / 1000
+          (rateLimitResult.resetTime - Date.now()) /
+            1000
         )
       );
 
@@ -97,7 +98,8 @@ export async function POST(request: Request) {
       return apiJsonResponse(
         {
           success: false,
-          message: "Unsupported content type.",
+          message:
+            "Unsupported content type.",
         },
         {
           status: 415,
@@ -107,9 +109,6 @@ export async function POST(request: Request) {
 
     /**
      * Request body size protection.
-     *
-     * Contact form requests should be very small.
-     * Reject requests larger than 20 KB before parsing.
      */
     const contentLength =
       request.headers.get("content-length");
@@ -125,7 +124,8 @@ export async function POST(request: Request) {
         return apiJsonResponse(
           {
             success: false,
-            message: "Request payload is too large.",
+            message:
+              "Request payload is too large.",
           },
           {
             status: 413,
@@ -136,9 +136,6 @@ export async function POST(request: Request) {
 
     /**
      * Safe JSON parsing.
-     *
-     * Invalid or malformed JSON requests receive
-     * a 400 response instead of a generic 500 error.
      */
     let body: Record<string, unknown>;
 
@@ -148,7 +145,8 @@ export async function POST(request: Request) {
       return apiJsonResponse(
         {
           success: false,
-          message: "Invalid JSON request body.",
+          message:
+            "Invalid JSON request body.",
         },
         {
           status: 400,
@@ -190,10 +188,6 @@ export async function POST(request: Request) {
 
     /**
      * Honeypot spam protection.
-     *
-     * Real users should never fill this field.
-     * If a bot fills it, return a fake success response
-     * without validation or sending an email.
      */
     if (website) {
       if (
@@ -311,7 +305,8 @@ export async function POST(request: Request) {
       phone,
       service,
       message,
-      createdAt: new Date().toISOString(),
+      createdAt:
+        new Date().toISOString(),
     };
 
     /**
@@ -332,137 +327,195 @@ export async function POST(request: Request) {
     }
 
     /**
-     * Send notification email
-     * to the configured Bizzfi inbox.
+     * Save enquiry to PostgreSQL.
+     *
+     * Database persistence is the primary operation.
+     * If this fails, the outer catch returns a 500 response.
      */
-    await sendEmail({
-      subject:
-        `New Contact Enquiry: ${service}`,
+    const savedEnquiry =
+      await prisma.contactEnquiry.create({
+        data: {
+          name,
+          company: company || null,
+          email,
+          phone,
+          service,
+          message,
+        },
+      });
 
-      replyTo: email,
+    if (
+      process.env.NODE_ENV === "development"
+    ) {
+      console.log(
+        "Contact enquiry saved to database:",
+        {
+          id: savedEnquiry.id,
+          service: savedEnquiry.service,
+          createdAt:
+            savedEnquiry.createdAt,
+        }
+      );
+    }
 
-      html: `
-        <div
-          style="
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 24px;
-            font-family: Arial, Helvetica, sans-serif;
-            line-height: 1.6;
-            color: #18181b;
-          "
-        >
-          <!-- Header -->
+    /**
+     * Send notification email.
+     *
+     * Email is a secondary operation.
+     * If email delivery fails, the enquiry remains
+     * safely stored in PostgreSQL and the user still
+     * receives a successful response.
+     */
+    try {
+      await sendEmail({
+        subject:
+          `New Contact Enquiry: ${service}`,
+
+        replyTo: email,
+
+        html: `
           <div
             style="
-              padding-bottom: 20px;
-              border-bottom: 1px solid #e4e4e7;
+              max-width: 640px;
+              margin: 0 auto;
+              padding: 24px;
+              font-family: Arial, Helvetica, sans-serif;
+              line-height: 1.6;
+              color: #18181b;
             "
           >
-            <h1
+            <!-- Header -->
+            <div
               style="
-                margin: 0;
-                font-size: 24px;
-                color: #18181b;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #e4e4e7;
               "
             >
-              New Contact Enquiry
-            </h1>
-
-            <p
-              style="
-                margin: 8px 0 0;
-                color: #71717a;
-              "
-            >
-              A new enquiry has been submitted through the Bizzfi website.
-            </p>
-          </div>
-
-          <!-- Enquiry Details -->
-          <div style="padding: 24px 0;">
-            <p>
-              <strong>Name:</strong>
-              ${escapeHtml(name)}
-            </p>
-
-            <p>
-              <strong>Company:</strong>
-              ${escapeHtml(
-                company || "Not provided"
-              )}
-            </p>
-
-            <p>
-              <strong>Email:</strong>
-              ${escapeHtml(email)}
-            </p>
-
-            <p>
-              <strong>Phone:</strong>
-              ${escapeHtml(phone)}
-            </p>
-
-            <p>
-              <strong>Service:</strong>
-              ${escapeHtml(service)}
-            </p>
-
-            <!-- Message -->
-            <div style="margin-top: 24px;">
-              <p style="margin-bottom: 8px;">
-                <strong>Message:</strong>
-              </p>
-
-              <div
+              <h1
                 style="
-                  padding: 16px;
-                  border-radius: 8px;
-                  background-color: #f4f4f5;
-                  color: #27272a;
+                  margin: 0;
+                  font-size: 24px;
+                  color: #18181b;
                 "
               >
-                ${escapeHtml(message).replace(
-                  /\n/g,
-                  "<br />"
+                New Contact Enquiry
+              </h1>
+
+              <p
+                style="
+                  margin: 8px 0 0;
+                  color: #71717a;
+                "
+              >
+                A new enquiry has been submitted
+                through the Bizzfi website.
+              </p>
+            </div>
+
+            <!-- Enquiry Details -->
+            <div style="padding: 24px 0;">
+              <p>
+                <strong>Name:</strong>
+                ${escapeHtml(name)}
+              </p>
+
+              <p>
+                <strong>Company:</strong>
+                ${escapeHtml(
+                  company || "Not provided"
                 )}
+              </p>
+
+              <p>
+                <strong>Email:</strong>
+                ${escapeHtml(email)}
+              </p>
+
+              <p>
+                <strong>Phone:</strong>
+                ${escapeHtml(phone)}
+              </p>
+
+              <p>
+                <strong>Service:</strong>
+                ${escapeHtml(service)}
+              </p>
+
+              <!-- Message -->
+              <div style="margin-top: 24px;">
+                <p style="margin-bottom: 8px;">
+                  <strong>Message:</strong>
+                </p>
+
+                <div
+                  style="
+                    padding: 16px;
+                    border-radius: 8px;
+                    background-color: #f4f4f5;
+                    color: #27272a;
+                  "
+                >
+                  ${escapeHtml(message).replace(
+                    /\n/g,
+                    "<br />"
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Footer -->
-          <div
-            style="
-              padding-top: 16px;
-              border-top: 1px solid #e4e4e7;
-            "
-          >
-            <p
+            <!-- Footer -->
+            <div
               style="
-                margin: 0;
-                font-size: 12px;
-                color: #71717a;
+                padding-top: 16px;
+                border-top: 1px solid #e4e4e7;
               "
             >
-              Submitted:
-              ${escapeHtml(enquiry.createdAt)}
-            </p>
+              <p
+                style="
+                  margin: 0;
+                  font-size: 12px;
+                  color: #71717a;
+                "
+              >
+                Submitted:
+                ${escapeHtml(
+                  enquiry.createdAt
+                )}
+              </p>
 
-            <p
-              style="
-                margin: 8px 0 0;
-                font-size: 12px;
-                color: #71717a;
-              "
-            >
-              This notification was generated automatically by the Bizzfi website.
-            </p>
+              <p
+                style="
+                  margin: 8px 0 0;
+                  font-size: 12px;
+                  color: #71717a;
+                "
+              >
+                This notification was generated
+                automatically by the Bizzfi website.
+              </p>
+            </div>
           </div>
-        </div>
-      `,
-    });
+        `,
+      });
+    } catch (emailError) {
+      /**
+       * Do not fail the entire submission if the
+       * notification email cannot be delivered.
+       *
+       * The enquiry has already been safely stored
+       * in PostgreSQL.
+       */
+      console.error(
+        "Contact enquiry saved, but email notification failed:",
+        emailError
+      );
+    }
 
-    // Successful API response
+    /**
+     * Successful API response.
+     *
+     * Database save determines submission success.
+     */
     return apiJsonResponse(
       {
         success: true,
@@ -474,6 +527,9 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
+    /**
+     * Database or other critical API failure.
+     */
     console.error(
       "Contact API error:",
       error
