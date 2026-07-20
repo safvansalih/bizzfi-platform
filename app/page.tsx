@@ -23,6 +23,14 @@ export const metadata: Metadata = {
       "Technology and digital business solutions including AI automation, cloud infrastructure, ERP, CRM, web development, cyber security and managed IT services.",
     url: "/",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Bizzfi - Complete Digital Business Solutions",
+      },
+    ],
   },
 
   twitter: {
@@ -30,6 +38,7 @@ export const metadata: Metadata = {
     title: "Bizzfi | Complete Digital Business Solutions",
     description:
       "Technology and digital solutions designed to support modern and growing businesses.",
+    images: ["/og-image.png"],
   },
 };
 
