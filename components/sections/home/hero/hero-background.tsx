@@ -1,7 +1,3 @@
-"use client";
-
-import { motion } from "motion/react";
-
 export function HeroBackground() {
   return (
     <div
@@ -29,49 +25,13 @@ export function HeroBackground() {
       />
 
       {/* Blue Aurora */}
-      <motion.div
-        className="absolute left-[10%] top-[10%] h-[450px] w-[450px] rounded-full bg-blue-500/20 blur-[120px] dark:bg-blue-600/30"
-        animate={{
-          x: [0, 120, -60, 0],
-          y: [0, -60, 80, 0],
-          scale: [1, 1.25, 0.9, 1],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      <div className="hero-aurora-blue absolute left-[10%] top-[10%] h-[450px] w-[450px] rounded-full bg-blue-500/20 blur-[120px] dark:bg-blue-600/30" />
 
       {/* Cyan Aurora */}
-      <motion.div
-        className="absolute right-[5%] top-[20%] h-[400px] w-[400px] rounded-full bg-cyan-400/15 blur-[120px] dark:bg-cyan-500/25"
-        animate={{
-          x: [0, -100, 60, 0],
-          y: [0, 80, -50, 0],
-          scale: [1, 0.85, 1.2, 1],
-        }}
-        transition={{
-          duration: 14,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      <div className="hero-aurora-cyan absolute right-[5%] top-[20%] h-[400px] w-[400px] rounded-full bg-cyan-400/15 blur-[120px] dark:bg-cyan-500/25" />
 
       {/* Purple Aurora */}
-      <motion.div
-        className="absolute bottom-[-15%] left-[35%] h-[500px] w-[500px] rounded-full bg-violet-500/15 blur-[140px] dark:bg-violet-600/25"
-        animate={{
-          x: [0, 80, -80, 0],
-          y: [0, -40, 20, 0],
-          scale: [1, 1.25, 0.9, 1],
-        }}
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      <div className="hero-aurora-purple absolute bottom-[-15%] left-[35%] h-[500px] w-[500px] rounded-full bg-violet-500/15 blur-[140px] dark:bg-violet-600/25" />
 
       {/* Top Glow */}
       <div className="absolute left-1/2 top-[-300px] h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-blue-500/10 blur-[150px] dark:bg-blue-500/15" />

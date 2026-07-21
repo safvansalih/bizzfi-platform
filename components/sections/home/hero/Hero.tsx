@@ -1,4 +1,4 @@
-"use client";
+
 
 import Link from "next/link";
 import {
@@ -8,7 +8,6 @@ import {
   Layers3,
   Users,
 } from "lucide-react";
-import { motion } from "motion/react";
 
 import { HeroBackground } from "./hero-background";
 import { heroData } from "./hero-data";
@@ -22,61 +21,31 @@ export function Hero() {
       {/* Hero Content */}
       <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
         {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6,
-            ease: "easeOut",
-          }}
+        <div
         >
           <span className="inline-flex items-center rounded-full border border-border bg-background/60 px-4 py-2 text-sm text-foreground backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             {heroData.badge}
           </span>
-        </motion.div>
+        </div>
 
         {/* Heading */}
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.15,
-            ease: "easeOut",
-          }}
-          className="mx-auto mt-8 max-w-5xl text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
-        >
+        <h1 className="mx-auto mt-8 max-w-5xl text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl" >
           Transform Your Business with{" "}
           <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500 bg-clip-text text-transparent">
             AI, Cloud & Enterprise Technology
           </span>
-        </motion.h1>
+        </h1>
 
         {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.3,
-            ease: "easeOut",
-          }}
+        <p
+         
           className="mx-auto mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg"
         >
           {heroData.description}
-        </motion.p>
+        </p>
 
         {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.45,
-            ease: "easeOut",
-          }}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-        >
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           {/* Primary CTA */}
           <Link
             href="/book-consultation"
@@ -104,17 +73,11 @@ export function Hero() {
               aria-hidden="true"
             />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Statistics */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.6,
-            ease: "easeOut",
-          }}
+        <div
+          
           className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3"
         >
           {heroData.stats.map((item, index) => {
@@ -152,7 +115,7 @@ export function Hero() {
               </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
