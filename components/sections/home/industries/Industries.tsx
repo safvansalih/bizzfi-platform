@@ -12,7 +12,7 @@ export function Industries() {
       <div className="mx-auto max-w-7xl px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400">
+          <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-700 dark:text-blue-400">
             Industries We Serve
           </span>
 

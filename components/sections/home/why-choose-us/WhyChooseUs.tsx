@@ -15,7 +15,7 @@ export function WhyChooseUs() {
         <div className="grid items-center gap-16 lg:grid-cols-2">
           {/* Left Content */}
           <div>
-            <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400">
+            <span className="text-sm font-medium uppercase tracking-[0.2em] text-blue-700 dark:text-blue-400">
               Why Choose Bizzfi
             </span>
 
@@ -44,7 +44,7 @@ export function WhyChooseUs() {
                   key={benefit}
                   className="flex items-start gap-3 text-sm text-muted-foreground sm:text-base"
                 >
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-400">
                     <Check className="h-4 w-4" aria-hidden="true" />
                   </div>
 
