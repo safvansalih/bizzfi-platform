@@ -25,7 +25,8 @@ export function Industries() {
 
           <p className="mt-6 text-base leading-8 text-muted-foreground sm:text-lg">
             We help organizations across diverse industries adopt modern
-            technology, improve operations and build scalable digital
+            technology, improve operations and build scalable 
+            digital
             experiences.
           </p>
         </div>

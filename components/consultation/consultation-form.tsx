@@ -309,7 +309,7 @@ export function ConsultationForm() {
           </div>
 
           {/* Booking Form */}
-          <div className="rounded-3xl border border-border bg-background p-6 shadow-sm sm:p-8">
+          <div className="min-w-0 rounded-3xl border border-border bg-background p-6 shadow-sm sm:p-8">
             {/* Success Message */}
             {isSubmitted && (
               <div
@@ -362,7 +362,7 @@ export function ConsultationForm() {
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-6"
+              className="min-w-0 space-y-6"
             >
               {/* Honeypot Spam Protection */}
               <div
@@ -383,8 +383,8 @@ export function ConsultationForm() {
               </div>
 
               {/* Name + Company */}
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
+              <div className="grid min-w-0 gap-6 sm:grid-cols-2">
+                <div className="min-w-0">
                   <label
                     htmlFor="consultation-name"
                     className="text-sm font-medium text-foreground"
@@ -400,11 +400,11 @@ export function ConsultationForm() {
                     maxLength={100}
                     autoComplete="name"
                     placeholder="Your name"
-                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label
                     htmlFor="consultation-company"
                     className="text-sm font-medium text-foreground"
@@ -419,14 +419,14 @@ export function ConsultationForm() {
                     maxLength={150}
                     autoComplete="organization"
                     placeholder="Company name"
-                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
 
               {/* Email + Phone */}
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
+              <div className="grid min-w-0 gap-6 sm:grid-cols-2">
+                <div className="min-w-0">
                   <label
                     htmlFor="consultation-email"
                     className="text-sm font-medium text-foreground"
@@ -442,11 +442,11 @@ export function ConsultationForm() {
                     maxLength={254}
                     autoComplete="email"
                     placeholder="you@company.com"
-                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label
                     htmlFor="consultation-phone"
                     className="text-sm font-medium text-foreground"
@@ -471,7 +471,7 @@ export function ConsultationForm() {
                         setPhoneError("");
                       }
                     }}
-                    className={`mt-2 h-12 w-full rounded-xl border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 ${
+                    className={`mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 ${
                       phoneError
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                         : "border-border focus:border-blue-500 focus:ring-blue-500/20"
@@ -499,7 +499,7 @@ export function ConsultationForm() {
               </div>
 
               {/* Consultation Topic */}
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="consultation-topic"
                   className="text-sm font-medium text-foreground"
@@ -512,7 +512,7 @@ export function ConsultationForm() {
                   name="topic"
                   required
                   defaultValue=""
-                  className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 >
                   <option value="" disabled>
                     Select a topic
@@ -530,8 +530,8 @@ export function ConsultationForm() {
               </div>
 
               {/* Date + Preferred Time */}
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
+              <div className="grid min-w-0 gap-6 sm:grid-cols-2">
+                <div className="min-w-0">
                   <label
                     htmlFor="preferred-date"
                     className="text-sm font-medium text-foreground"
@@ -539,7 +539,7 @@ export function ConsultationForm() {
                     Preferred Date *
                   </label>
 
-                  <div className="relative mt-2">
+                  <div className="relative mt-2 min-w-0 max-w-full">
                     <CalendarDays
                       className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                       aria-hidden="true"
@@ -551,12 +551,12 @@ export function ConsultationForm() {
                       type="date"
                       min={today}
                       required
-                      className="h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="block h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label
                     htmlFor="preferred-time"
                     className="text-sm font-medium text-foreground"
@@ -569,7 +569,7 @@ export function ConsultationForm() {
                     name="preferredTime"
                     required
                     defaultValue=""
-                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="mt-2 h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="" disabled>
                       Select preferred time
@@ -588,7 +588,7 @@ export function ConsultationForm() {
               </div>
 
               {/* Requirement */}
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="consultation-message"
                   className="text-sm font-medium text-foreground"
@@ -603,7 +603,7 @@ export function ConsultationForm() {
                   rows={5}
                   maxLength={5000}
                   placeholder="Tell us what you would like to discuss..."
-                  className="mt-2 w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full min-w-0 max-w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
