@@ -239,7 +239,7 @@ export function ConsultationForm() {
   return (
     <section className="px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
+        <div className="grid min-w-0 gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
           {/* Introduction */}
           <div>
             <span className="text-sm font-semibold uppercase tracking-wider text-blue-500">
@@ -551,7 +551,7 @@ export function ConsultationForm() {
                       type="date"
                       min={today}
                       required
-                      className="block h-12 w-full min-w-0 max-w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="block h-12 w-full min-w-0 max-w-full appearance-none rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
