@@ -119,7 +119,7 @@ export function ContactForm() {
     }, 15_000);
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("/api/leads", {
         method: "POST",
 
         headers: {
