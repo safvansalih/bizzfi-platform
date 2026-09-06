@@ -10,7 +10,12 @@ const MAX_BODY_SIZE = 20_000;
 
 const RATE_LIMIT = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const ODOO_API_URL =
+  process.env.ODOO_API_URL ||
+  "https://erp.bizzfi.com/api/bizzfi/lead";
 
+const ODOO_API_TOKEN =
+  process.env.ODOO_API_TOKEN || "";
 const allowedTopics = [
   "Website Development",
   "Mobile App Development",
@@ -694,6 +699,135 @@ try {
   console.error(
     "Consultation request saved, but email notification failed:",
     emailError
+  );
+}
+/**
+ * Create CRM Lead in Odoo.
+ *
+ * PostgreSQL and email are already handled above.
+ * Odoo is called server-side only.
+ */
+try {
+  const odooController = new AbortController();
+
+  const odooTimeoutId = setTimeout(() => {
+    odooController.abort();
+  }, 10_000);
+
+  try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
+
+    // Token is server-side only.
+    if (ODOO_API_TOKEN) {
+      headers["Authorization"] =
+        `Bearer ${ODOO_API_TOKEN}`;
+    }
+
+    const odooMessage = [
+      message,
+      "",
+      "--- Consultation Details ---",
+      `Preferred Date: ${preferredDate}`,
+      `Preferred Time: ${preferredTime}`,
+      `Consultation Topic: ${topic}`,
+    ].join("\n");
+
+    const odooResponse = await fetch(
+      ODOO_API_URL,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "call",
+          params: {
+            name,
+            company,
+            email,
+            phone,
+            service: topic,
+            message: odooMessage,
+          },
+          id: Date.now(),
+        }),
+        signal: odooController.signal,
+        cache: "no-store",
+      }
+    );
+
+    let odooData: {
+      result?: {
+        success?: boolean;
+        lead_id?: number;
+        message?: string;
+      };
+      error?: {
+        code?: number;
+        message?: string;
+      };
+    };
+
+    try {
+      odooData =
+        await odooResponse.json();
+    } catch {
+      console.error(
+        "Odoo consultation API returned invalid JSON."
+      );
+
+      throw new Error(
+        "Invalid Odoo response"
+      );
+    }
+
+    if (
+      !odooResponse.ok ||
+      odooData.error ||
+      !odooData.result?.success
+    ) {
+      console.error(
+        "Odoo consultation lead creation failed:",
+        {
+          status: odooResponse.status,
+          code: odooData.error?.code,
+          message: odooData.error?.message,
+        }
+      );
+
+      throw new Error(
+        "Odoo lead creation failed"
+      );
+    }
+
+    if (
+      process.env.NODE_ENV ===
+      "development"
+    ) {
+      console.log(
+        "Bizzfi consultation lead successfully created in Odoo:",
+        {
+          leadId:
+            odooData.result.lead_id,
+          topic,
+        }
+      );
+    }
+  } finally {
+    clearTimeout(odooTimeoutId);
+  }
+} catch (odooError) {
+  /**
+   * The consultation has already been saved
+   * to PostgreSQL and the email was attempted.
+   *
+   * Do not expose Odoo internals to the customer.
+   */
+  console.error(
+    "Consultation saved, but Odoo lead creation failed:",
+    odooError
   );
 }
     // Successful API response
