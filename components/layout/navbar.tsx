@@ -1,5 +1,4 @@
 import { Logo } from "@/components/common/logo";
-
 export function Navbar() {
   return (
     <header className="border-b">

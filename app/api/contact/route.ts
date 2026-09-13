@@ -367,150 +367,284 @@ export async function POST(request: Request) {
      * receives a successful response.
      */
     try {
-      await sendEmail({
-        subject:
-          `New Contact Enquiry: ${service}`,
-
-        replyTo: email,
-
-        html: `
-          <div
+  // 1. Bizzfi internal notification email
+  await sendEmail({
+    subject: `New Contact Enquiry: ${service}`,
+    replyTo: email,
+    html: `
+      <div
+        style="
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 24px;
+          font-family: Arial, Helvetica, sans-serif;
+          line-height: 1.6;
+          color: #18181b;
+        "
+      >
+        <div
+          style="
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e4e4e7;
+          "
+        >
+          <h1
             style="
-              max-width: 640px;
-              margin: 0 auto;
-              padding: 24px;
-              font-family: Arial, Helvetica, sans-serif;
-              line-height: 1.6;
+              margin: 0;
+              font-size: 24px;
               color: #18181b;
             "
           >
-            <!-- Header -->
+            New Contact Enquiry
+          </h1>
+
+          <p
+            style="
+              margin: 8px 0 0;
+              color: #71717a;
+            "
+          >
+            A new enquiry has been submitted
+            through the Bizzfi website.
+          </p>
+        </div>
+
+        <div style="padding: 24px 0;">
+          <p>
+            <strong>Name:</strong>
+            ${escapeHtml(name)}
+          </p>
+
+          <p>
+            <strong>Company:</strong>
+            ${escapeHtml(company || "Not provided")}
+          </p>
+
+          <p>
+            <strong>Email:</strong>
+            ${escapeHtml(email)}
+          </p>
+
+          <p>
+            <strong>Phone:</strong>
+            ${escapeHtml(phone)}
+          </p>
+
+          <p>
+            <strong>Service:</strong>
+            ${escapeHtml(service)}
+          </p>
+
+          <div style="margin-top: 24px;">
+            <p style="margin-bottom: 8px;">
+              <strong>Message:</strong>
+            </p>
+
             <div
               style="
-                padding-bottom: 20px;
-                border-bottom: 1px solid #e4e4e7;
+                padding: 16px;
+                border-radius: 8px;
+                background-color: #f4f4f5;
+                color: #27272a;
               "
             >
-              <h1
-                style="
-                  margin: 0;
-                  font-size: 24px;
-                  color: #18181b;
-                "
-              >
-                New Contact Enquiry
-              </h1>
-
-              <p
-                style="
-                  margin: 8px 0 0;
-                  color: #71717a;
-                "
-              >
-                A new enquiry has been submitted
-                through the Bizzfi website.
-              </p>
-            </div>
-
-            <!-- Enquiry Details -->
-            <div style="padding: 24px 0;">
-              <p>
-                <strong>Name:</strong>
-                ${escapeHtml(name)}
-              </p>
-
-              <p>
-                <strong>Company:</strong>
-                ${escapeHtml(
-                  company || "Not provided"
-                )}
-              </p>
-
-              <p>
-                <strong>Email:</strong>
-                ${escapeHtml(email)}
-              </p>
-
-              <p>
-                <strong>Phone:</strong>
-                ${escapeHtml(phone)}
-              </p>
-
-              <p>
-                <strong>Service:</strong>
-                ${escapeHtml(service)}
-              </p>
-
-              <!-- Message -->
-              <div style="margin-top: 24px;">
-                <p style="margin-bottom: 8px;">
-                  <strong>Message:</strong>
-                </p>
-
-                <div
-                  style="
-                    padding: 16px;
-                    border-radius: 8px;
-                    background-color: #f4f4f5;
-                    color: #27272a;
-                  "
-                >
-                  ${escapeHtml(message).replace(
-                    /\n/g,
-                    "<br />"
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div
-              style="
-                padding-top: 16px;
-                border-top: 1px solid #e4e4e7;
-              "
-            >
-              <p
-                style="
-                  margin: 0;
-                  font-size: 12px;
-                  color: #71717a;
-                "
-              >
-                Submitted:
-                ${escapeHtml(
-                  enquiry.createdAt
-                )}
-              </p>
-
-              <p
-                style="
-                  margin: 8px 0 0;
-                  font-size: 12px;
-                  color: #71717a;
-                "
-              >
-                This notification was generated
-                automatically by the Bizzfi website.
-              </p>
+              ${escapeHtml(message).replace(/\n/g, "<br />")}
             </div>
           </div>
-        `,
-      });
-    } catch (emailError) {
-      /**
-       * Do not fail the entire submission if the
-       * notification email cannot be delivered.
-       *
-       * The enquiry has already been safely stored
-       * in PostgreSQL.
-       */
+        </div>
+
+        <div
+          style="
+            padding-top: 16px;
+            border-top: 1px solid #e4e4e7;
+          "
+        >
+          <p
+            style="
+              margin: 0;
+              font-size: 12px;
+              color: #71717a;
+            "
+          >
+            Submitted:
+            ${escapeHtml(enquiry.createdAt)}
+          </p>
+
+          <p
+            style="
+              margin: 8px 0 0;
+              font-size: 12px;
+              color: #71717a;
+            "
+          >
+            This notification was generated
+            automatically by the Bizzfi website.
+          </p>
+        </div>
+      </div>
+    `,
+  });
+
+  // 2. Customer confirmation email
+  await sendEmail({
+    to: email,
+    subject: "Thank you for contacting Bizzfi",
+    html: `
+      <div
+        style="
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 24px;
+          font-family: Arial, Helvetica, sans-serif;
+          line-height: 1.6;
+          color: #18181b;
+        "
+      >
+        <div
+          style="
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e4e4e7;
+          "
+        >
+          <h1
+            style="
+              margin: 0;
+              font-size: 24px;
+              color: #18181b;
+            "
+          >
+            Thank You for Contacting Bizzfi
+          </h1>
+
+          <p
+            style="
+              margin: 8px 0 0;
+              color: #71717a;
+            "
+          >
+            Hi ${escapeHtml(name)},
+          </p>
+        </div>
+
+        <div style="padding: 24px 0;">
+          <p>
+            Thank you for reaching out to Bizzfi.
+            We have successfully received your enquiry.
+          </p>
+
+          <p>
+            Our team will review your requirement and
+            get back to you as soon as possible.
+          </p>
+
+          <div
+            style="
+              margin-top: 24px;
+              padding: 16px;
+              border-radius: 8px;
+              background-color: #f4f4f5;
+              color: #27272a;
+            "
+          >
+            <p style="margin: 0;">
+              <strong>Selected Service:</strong>
+              ${escapeHtml(service)}
+            </p>
+          </div>
+
+          <p style="margin-top: 24px;">
+            If you need to provide any additional details,
+            you can reply to this email.
+          </p>
+
+          <p>
+            Regards,<br />
+            <strong>Bizzfi Team</strong>
+          </p>
+        </div>
+
+        <div
+          style="
+            padding-top: 16px;
+            border-top: 1px solid #e4e4e7;
+          "
+        >
+          <p
+            style="
+              margin: 0;
+              font-size: 12px;
+              color: #71717a;
+            "
+          >
+            This is an automated confirmation email from Bizzfi.
+          </p>
+        </div>
+      </div>
+    `,
+  });
+} catch (emailError) {
+  /**
+   * The enquiry is already saved in PostgreSQL.
+   * Email failure must not fail the form submission.
+   */
+  console.error(
+    "Contact enquiry saved, but one or more emails failed:",
+    emailError
+  );
+}
+ try {
+      const odooApiUrl = process.env.ODOO_API_URL?.trim();
+      const odooApiToken = process.env.ODOO_API_TOKEN?.trim();
+
+      if (!odooApiUrl) {
+        console.error("ODOO_API_URL is not configured.");
+      } else {
+        const odooResponse = await fetch(odooApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(odooApiToken
+              ? {
+                  Authorization: `Bearer ${odooApiToken}`,
+                }
+              : {}),
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "call",
+            params: {
+              name,
+              company,
+              email,
+              phone,
+              service,
+              message,
+            },
+            id: 1,
+          }),
+          cache: "no-store",
+        });
+
+        const odooData = await odooResponse.json();
+
+        if (!odooResponse.ok || !odooData?.result?.success) {
+          console.error("Odoo lead creation failed:", {
+            status: odooResponse.status,
+            response: odooData,
+          });
+        } else if (process.env.NODE_ENV === "development") {
+          console.log("Bizzfi lead successfully created in Odoo:", {
+            leadId: odooData.result.lead_id,
+            service,
+          });
+        }
+      }
+    } catch (odooError) {
       console.error(
-        "Contact enquiry saved, but email notification failed:",
-        emailError
+        "Contact enquiry saved, but Odoo lead creation failed:",
+        odooError
       );
     }
-
     /**
      * Successful API response.
      *

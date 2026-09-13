@@ -8,8 +8,9 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { prisma } from "@/lib/db/prisma";
+
 import { Breadcrumb } from "@/components/common/breadcrumb";
-import { blogPosts } from "@/data/blog";
 import { ArticleInfo } from "@/components/blog/article-info";
 import { AuthorCard } from "@/components/blog/author-card";
 import { BlogCTA } from "@/components/blog/blog-cta";
@@ -21,26 +22,34 @@ type BlogPostPageProps = {
   }>;
 };
 
-/**
- * Generate static routes for all blog posts.
- */
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
+async function getPublishedPost(slug: string) {
+  return prisma.blogPost.findFirst({
+    where: {
+      slug,
+      status: "PUBLISHED",
+    },
+  });
 }
 
-/**
- * Generate SEO metadata dynamically for each blog post.
- */
+function calculateReadingTime(content: string) {
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(wordCount / 200));
+
+  return `${minutes} min read`;
+}
+
+function formatArticleContent(content: string) {
+  return content
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  const post = blogPosts.find(
-    (item) => item.slug === slug
-  );
+  const post = await getPublishedPost(slug);
 
   if (!post) {
     return {
@@ -53,41 +62,42 @@ export async function generateMetadata({
   }
 
   const canonicalPath = `/blog/${post.slug}`;
+  const description =
+    post.seoDescription ||
+    post.excerpt ||
+    "Explore insights from Bizzfi.";
 
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: post.seoTitle || post.title,
+    description,
 
     alternates: {
       canonical: canonicalPath,
     },
 
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: post.seoTitle || post.title,
+      description,
       url: canonicalPath,
       type: "article",
-      publishedTime: post.publishedAt,
-      authors: [post.author],
-      section: post.category,
+      publishedTime: post.publishedAt?.toISOString(),
+      section: post.category || "Business",
       siteName: "Bizzfi",
     },
 
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
+      title: post.seoTitle || post.title,
+      description,
     },
   };
 }
+
 export default async function BlogPostPage({
   params,
 }: BlogPostPageProps) {
   const { slug } = await params;
-
-  const post = blogPosts.find(
-    (item) => item.slug === slug
-  );
+  const post = await getPublishedPost(slug);
 
   if (!post) {
     notFound();
@@ -97,7 +107,13 @@ export default async function BlogPostPage({
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(post.publishedAt));
+  }).format(post.publishedAt || post.createdAt);
+
+  const readingTime = calculateReadingTime(post.content);
+  const paragraphs = formatArticleContent(post.content);
+  const category = post.category || "Business";
+  const excerpt =
+    post.excerpt || "Explore this insight from Bizzfi.";
 
   return (
     <>
@@ -119,7 +135,7 @@ export default async function BlogPostPage({
         <div className="mx-auto max-w-4xl">
           {/* Category */}
           <span className="inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-xs font-semibold text-blue-500">
-            {post.category}
+            {category}
           </span>
 
           {/* Title */}
@@ -129,55 +145,54 @@ export default async function BlogPostPage({
 
           {/* Excerpt */}
           <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            {post.excerpt}
+            {excerpt}
           </p>
 
           {/* Article Meta */}
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
-              <UserRound
-                className="h-4 w-4"
-                aria-hidden="true"
-              />
-
-              {post.author}
+              <UserRound className="h-4 w-4" aria-hidden="true" />
+              Bizzfi Team
             </span>
 
             <span className="flex items-center gap-2">
-              <CalendarDays
-                className="h-4 w-4"
-                aria-hidden="true"
-              />
-
+              <CalendarDays className="h-4 w-4" aria-hidden="true" />
               {formattedDate}
             </span>
 
             <span className="flex items-center gap-2">
-              <Clock3
-                className="h-4 w-4"
-                aria-hidden="true"
-              />
-
-              {post.readingTime}
+              <Clock3 className="h-4 w-4" aria-hidden="true" />
+              {readingTime}
             </span>
           </div>
         </div>
       </header>
 
-      {/* Featured Image Placeholder */}
+      {/* Featured Image */}
       <section className="px-6 pt-12 sm:pt-16">
         <div className="mx-auto max-w-5xl">
           <div className="relative aspect-[16/8] overflow-hidden rounded-3xl border border-border bg-muted/50">
-            <div
-              className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-violet-500/20"
-              aria-hidden="true"
-            />
+            {post.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={post.coverImage}
+                alt={post.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <>
+                <div
+                  className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-violet-500/20"
+                  aria-hidden="true"
+                />
 
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-medium text-muted-foreground">
-                Article Featured Image
-              </span>
-            </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Article Featured Image
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -185,57 +200,27 @@ export default async function BlogPostPage({
       {/* Article Content */}
       <article className="px-6 py-16 sm:py-20">
         <div className="mx-auto max-w-3xl">
-            {/* Article info */}
-            <ArticleInfo
-  category={post.category}
-  date={formattedDate}
-  readingTime={post.readingTime}
-/>
-          {/* Introduction */}
-          <p className="mt-10 text-lg leading-9 text-muted-foreground">
-  {post.content.introduction}
-</p>
+          <ArticleInfo
+            category={category}
+            date={formattedDate}
+            readingTime={readingTime}
+          />
 
-          {/* Content Sections */}
-          <div className="mt-12 space-y-12">
-            {post.content.sections.map((section) => (
-              <section key={section.heading}>
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  {section.heading}
-                </h2>
-
-                <div className="mt-5 space-y-5">
-                  {section.paragraphs.map(
-                    (paragraph, index) => (
-                      <p
-                        key={`${section.heading}-${index}`}
-                        className="text-base leading-8 text-muted-foreground"
-                      >
-                        {paragraph}
-                      </p>
-                    )
-                  )}
-                </div>
-              </section>
+          <div className="mt-10 space-y-6">
+            {paragraphs.map((paragraph, index) => (
+              <p
+                key={index}
+                className="text-base leading-8 text-muted-foreground"
+              >
+                {paragraph}
+              </p>
             ))}
           </div>
 
-          {/* Conclusion */}
-          {post.content.conclusion && (
-            <div className="mt-12 rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6 sm:p-8">
-              <h2 className="text-xl font-semibold text-foreground">
-                Final Thoughts
-              </h2>
-
-              <p className="mt-4 text-base leading-8 text-muted-foreground">
-                {post.content.conclusion}
-              </p>
-            </div>
-          )}
-
-<div className="mt-12">
-  <AuthorCard author={post.author} />
-</div>
+          {/* Author */}
+          <div className="mt-12">
+            <AuthorCard author="Bizzfi Team" />
+          </div>
 
           {/* Back to Blog */}
           <div className="mt-12 border-t border-border pt-8">
@@ -253,13 +238,15 @@ export default async function BlogPostPage({
           </div>
         </div>
       </article>
-      {/* Blog Conversion CTA */}
-<BlogCTA />
+
+      {/* Blog CTA */}
+      <BlogCTA />
+
       {/* Related Articles */}
       <RelatedArticles
-  currentSlug={post.slug}
-  category={post.category}
-/>
+        currentSlug={post.slug}
+        category={category}
+      />
     </>
   );
 }

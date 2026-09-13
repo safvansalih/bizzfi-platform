@@ -13,16 +13,17 @@ const resend = new Resend(apiKey);
 type SendEmailParams = {
   subject: string;
   html: string;
+  to?: string | string[];
   replyTo?: string;
 };
 
 export async function sendEmail({
   subject,
   html,
+  to,
   replyTo,
 }: SendEmailParams) {
   const from = process.env.EMAIL_FROM?.trim();
-  const to = process.env.EMAIL_TO?.trim();
 
   if (!from) {
     throw new Error(
@@ -30,15 +31,21 @@ export async function sendEmail({
     );
   }
 
-  if (!to) {
+  const recipients = to
+    ? Array.isArray(to)
+      ? to
+      : [to]
+    : [process.env.EMAIL_TO?.trim() || ""];
+
+  if (!recipients[0]) {
     throw new Error(
-      "EMAIL_TO environment variable is not configured."
+      "Email recipient is not configured."
     );
   }
 
   const { data, error } = await resend.emails.send({
     from,
-    to: [to],
+    to: recipients,
     subject,
     html,
     ...(replyTo ? { replyTo: replyTo.trim() } : {}),

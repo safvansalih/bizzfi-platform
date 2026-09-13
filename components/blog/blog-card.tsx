@@ -1,10 +1,20 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clock3 } from "lucide-react";
 
-import type { BlogPost } from "@/data/blog";
+type BlogCardPost = {
+  id?: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  publishedAt: string;
+  readingTime: string;
+  author: string;
+  featured: boolean;
+};
 
 type BlogCardProps = {
-  post: BlogPost;
+  post: BlogCardPost;
 };
 
 export function BlogCard({ post }: BlogCardProps) {

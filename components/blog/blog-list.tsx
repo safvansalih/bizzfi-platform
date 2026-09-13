@@ -1,34 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { BlogCard } from "@/components/blog/blog-card";
-import {
-  blogCategories,
-  blogPosts,
-  type BlogCategory,
-} from "@/data/blog";
+
+type DatabaseBlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  category: string | null;
+  status: string;
+  publishedAt: string | null;
+};
+
+type BlogCardPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  publishedAt: string;
+  readingTime: string;
+  author: string;
+  featured: boolean;
+};
 
 export function BlogList() {
-  const [activeCategory, setActiveCategory] =
-    useState<BlogCategory>("All");
+  const [posts, setPosts] = useState<DatabaseBlogPost[]>([]);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
 
-  // When "All" is selected, exclude the featured article
-  // because it is already displayed in the Featured Article section.
-  // When a specific category is selected, include all posts
-  // from that category, including the featured article.
-  const filteredPosts = blogPosts.filter((post) => {
-    if (activeCategory === "All") {
-      return !post.featured;
+  useEffect(() => {
+    async function loadPublishedPosts() {
+      try {
+        const response = await fetch("/api/blog");
+
+        if (!response.ok) {
+          throw new Error("Unable to load blog posts");
+        }
+
+        const data = await response.json();
+
+        setPosts(data.posts || []);
+      } catch (error) {
+        console.error("Public blog loading error:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    return post.category === activeCategory;
-  });
+    loadPublishedPosts();
+  }, []);
+
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(
+        posts
+          .map((post) => post.category)
+          .filter((category): category is string => Boolean(category))
+      )
+    );
+
+    return ["All", ...uniqueCategories];
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    return posts
+      .filter((post) => {
+        if (activeCategory === "All") return true;
+
+        return post.category === activeCategory;
+      })
+      .map<BlogCardPost>((post) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt || "Explore this insight from Bizzfi.",
+        category: post.category || "Business",
+        publishedAt: post.publishedAt || new Date().toISOString(),
+        readingTime: `${Math.max(
+          1,
+          Math.ceil(post.content.trim().split(/\s+/).length / 200)
+        )} min read`,
+        author: "Bizzfi Team",
+        featured: false,
+      }));
+  }, [posts, activeCategory]);
 
   return (
     <section className="px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-7xl">
-        {/* Section Header */}
         <div className="max-w-3xl">
           <span className="text-sm font-semibold uppercase tracking-wider text-blue-500">
             Latest Insights
@@ -45,51 +109,53 @@ export function BlogList() {
           </p>
         </div>
 
-        {/* Category Filters */}
-        <div
-          className="mt-10 flex flex-wrap gap-2"
-          aria-label="Filter blog posts by category"
-        >
-          {blogCategories.map((category) => {
-            const isActive = activeCategory === category;
+        {categories.length > 1 && (
+          <div
+            className="mt-10 flex flex-wrap gap-2"
+            aria-label="Filter blog posts by category"
+          >
+            {categories.map((category) => {
+              const isActive = activeCategory === category;
 
-            return (
-              <button
-                key={category}
-                type="button"
-                onClick={() => setActiveCategory(category)}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  isActive
-                    ? "border-blue-500 bg-blue-600 text-white"
-                    : "border-border bg-background text-muted-foreground hover:border-blue-500/40 hover:text-foreground"
-                }`}
-                aria-pressed={isActive}
-              >
-                {category}
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                    isActive
+                      ? "border-blue-500 bg-blue-600 text-white"
+                      : "border-border bg-background text-muted-foreground hover:border-blue-500/40 hover:text-foreground"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Blog Grid */}
-        {filteredPosts.length > 0 ? (
+        {loading ? (
+          <div className="mt-10 rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center">
+            <p className="text-sm text-muted-foreground">
+              Loading articles...
+            </p>
+          </div>
+        ) : filteredPosts.length > 0 ? (
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
-              <BlogCard
-                key={post.slug}
-                post={post}
-              />
+              <BlogCard key={post.slug} post={post} />
             ))}
           </div>
         ) : (
-          /* Empty State */
           <div className="mt-10 rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-16 text-center">
             <h3 className="text-lg font-semibold text-foreground">
               No articles available
             </h3>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              There are currently no articles available in this category.
+              Published articles will appear here.
             </p>
           </div>
         )}
