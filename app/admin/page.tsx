@@ -2,6 +2,7 @@ import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import SendRemindersButton from "@/components/admin/send-reminders-button";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -350,50 +351,64 @@ export default async function AdminDashboard() {
         </section>
 
         {/* Quick Actions */}
-        <section className="mt-10">
-          <h2 className="mb-4 text-lg font-semibold">
-            Quick Actions
-          </h2>
+<section className="mt-10">
+  <h2 className="mb-4 text-lg font-semibold">
+    Quick Actions
+  </h2>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <Link
-              href="/admin/blog/new"
-              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              + Create Blog Post
-            </Link>
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <Link
+      href="/admin/blog/new"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+    >
+      + Create Blog Post
+    </Link>
 
-            <Link
-              href="/admin/enquiries"
-              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              Manage Contact Enquiries
-            </Link>
+    <Link
+      href="/admin/enquiries"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+    >
+      Manage Contact Enquiries
+    </Link>
 
-            <Link
-              href="/admin/consultations"
-              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              Manage Consultations
-            </Link>
+    <Link
+      href="/admin/consultations"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+    >
+      Manage Consultations
+    </Link>
 
-            <Link
-              href="/admin/follow-ups"
-              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              Follow-up Management
-            </Link>
+    <Link
+      href="/admin/follow-ups"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+    >
+      Follow-up Management
+    </Link>
 
-            <a
-              href="https://erp.bizzfi.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-            >
-              Open Odoo CRM ↗
-            </a>
-          </div>
-        </section>
+    <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4">
+      <p className="text-sm font-semibold text-emerald-200">
+        Follow-up Reminders
+      </p>
+
+      <p className="mt-1 text-xs leading-5 text-emerald-200/70">
+        Send pending customer reminder emails.
+      </p>
+
+      <div className="mt-3">
+        <SendRemindersButton />
+      </div>
+    </div>
+
+    <a
+      href="https://erp.bizzfi.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+    >
+      Open Odoo CRM ↗
+    </a>
+  </div>
+</section>
 
         {/* Recent Activity */}
         <section className="mt-10 grid gap-6 lg:grid-cols-3">
