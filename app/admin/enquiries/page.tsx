@@ -1,6 +1,19 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import EnquiryStatusSelect from "@/components/admin/enquiry-status-select";
+
+function getWhatsAppNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+
+  // Indian 10-digit number ആണെങ്കിൽ country code ചേർക്കുന്നു
+  if (digits.length === 10) {
+    return `91${digits}`;
+  }
+
+  return digits;
+}
 
 type EnquiriesPageProps = {
   searchParams: Promise<{
@@ -81,220 +94,153 @@ export default async function AdminEnquiriesPage({
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <a
+          <Link
             href="/admin"
             className="mb-4 inline-block text-sm text-slate-400 hover:text-white"
           >
             ← Back to Dashboard
-          </a>
+          </Link>
 
-          <div>
-            <p className="text-sm text-slate-400">
-              Bizzfi Administration
-            </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm text-slate-400">
+                Bizzfi Administration
+              </p>
 
-            <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
-              Contact Enquiries
-            </h1>
+              <h1 className="mt-2 text-3xl font-bold">
+                Contact Enquiries
+              </h1>
 
-            <p className="mt-2 text-slate-400">
-              Manage enquiries submitted through the Bizzfi website.
-            </p>
+              <p className="mt-2 text-sm text-slate-400">
+                Manage customer enquiries received from the website.
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-slate-300">
+              {enquiries.length} enquiries
+            </div>
           </div>
         </div>
 
-        {/* Search & Filter */}
+        {/* Filters */}
         <form
           method="GET"
-          className="mb-6 rounded-2xl border border-white/10 bg-white/[0.05] p-4"
+          className="mb-8 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-[1fr_220px_auto]"
         >
-          <div className="grid gap-4 md:grid-cols-[1fr_200px_auto]">
-            <input
-              type="search"
-              name="search"
-              defaultValue={search}
-              placeholder="Search name, email, company, phone or service..."
-              className="w-full rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-white/30"
-            />
+          <input
+            type="text"
+            name="search"
+            defaultValue={search}
+            placeholder="Search name, email, company, phone..."
+            className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-white/30"
+          />
 
-            <select
-              name="status"
-              defaultValue={status}
-              className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none focus:border-white/30"
-            >
-              <option value="">All Statuses</option>
+          <select
+            name="status"
+            defaultValue={status}
+            className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-white/30"
+          >
+            <option value="">All statuses</option>
 
-              {statuses.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            {statuses.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
 
-            <button
-              type="submit"
-              className="rounded-lg bg-white px-6 py-3 font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              Search
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+          >
+            Filter
+          </button>
         </form>
 
-        {/* Results */}
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-slate-400">
-            Showing {enquiries.length} enquiries
-          </p>
-        </div>
-
-        {/* Desktop Table */}
-        <div className="hidden overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] md:block">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] text-left">
-              <thead className="border-b border-white/10 bg-white/[0.03]">
-                <tr>
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Customer
-                  </th>
-
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Contact
-                  </th>
-
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Service
-                  </th>
-
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Message
-                  </th>
-
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Status
-                  </th>
-
-                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-white/10">
-                {enquiries.map((enquiry) => (
-                  <tr
-                    key={enquiry.id}
-                    className="transition hover:bg-white/[0.03]"
-                  >
-                    <td className="px-5 py-5 align-top">
-                      <p className="font-semibold text-white">
-                        {enquiry.name}
-                      </p>
-
-                      {enquiry.company && (
-                        <p className="mt-1 text-sm text-slate-400">
-                          {enquiry.company}
-                        </p>
-                      )}
-                    </td>
-
-                    <td className="px-5 py-5 align-top">
-                      <p className="text-sm text-slate-300">
-                        {enquiry.email}
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        {enquiry.phone}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-5 align-top">
-                      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
-                        {enquiry.service}
-                      </span>
-                    </td>
-
-                    <td className="max-w-sm px-5 py-5 align-top">
-                      <p className="line-clamp-3 text-sm text-slate-400">
-                        {enquiry.message}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-5 align-top">
-                      <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-300">
-                        {enquiry.status}
-                      </span>
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-5 align-top text-sm text-slate-400">
-                      {new Date(enquiry.createdAt).toLocaleString("en-IN")}
-                    </td>
-                  </tr>
-                ))}
-
-                {enquiries.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-5 py-12 text-center text-slate-500"
-                    >
-                      No enquiries found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="space-y-4 md:hidden">
+        {/* Enquiries */}
+        <div className="space-y-4">
           {enquiries.map((enquiry) => (
-            <div
+            <article
               key={enquiry.id}
-              className="rounded-2xl border border-white/10 bg-white/[0.05] p-5"
+              className="rounded-2xl border border-white/10 bg-white/[0.05] p-5 transition hover:bg-white/[0.07]"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <h2 className="font-semibold text-white">
-                    {enquiry.name}
-                  </h2>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h2 className="text-lg font-semibold text-white">
+                      {enquiry.name}
+                    </h2>
 
-                  {enquiry.company && (
-                    <p className="mt-1 text-sm text-slate-400">
-                      {enquiry.company}
+                    <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-300">
+                      {enquiry.status}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 space-y-1 text-sm text-slate-400">
+                    <p>
+                      <span className="text-slate-500">Email:</span>{" "}
+                      {enquiry.email}
                     </p>
-                  )}
+
+                    <p>
+                      <span className="text-slate-500">Phone:</span>{" "}
+                      {enquiry.phone}
+                    </p>
+
+                    <p>
+                      <span className="text-slate-500">Company:</span>{" "}
+                      {enquiry.company || "—"}
+                    </p>
+
+                    <p>
+                      <span className="text-slate-500">Service:</span>{" "}
+                      {enquiry.service}
+                    </p>
+                  </div>
                 </div>
 
-                <span className="shrink-0 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-300">
-                  {enquiry.status}
-                </span>
-              </div>
-
-              <div className="mt-4 space-y-2 text-sm">
-                <p className="text-slate-300">
-                  📧 {enquiry.email}
-                </p>
-
-                <p className="text-slate-400">
-                  📱 {enquiry.phone}
-                </p>
-
-                <p className="text-slate-300">
-                  🛠️ {enquiry.service}
-                </p>
+                <div className="text-sm text-slate-500 lg:text-right">
+                  {new Date(enquiry.createdAt).toLocaleString("en-IN")}
+                </div>
               </div>
 
               <div className="mt-4 border-t border-white/10 pt-4">
-                <p className="text-sm leading-6 text-slate-400">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-slate-400">
                   {enquiry.message}
                 </p>
               </div>
+<EnquiryStatusSelect
+  enquiryId={enquiry.id}
+  initialStatus={enquiry.status}
+/>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a
+  href={`https://wa.me/${getWhatsAppNumber(
+    enquiry.phone
+  )}?text=${encodeURIComponent(
+    `Hello ${enquiry.name}, this is Bizzfi. Thank you for contacting us regarding ${enquiry.service}. We will get back to you shortly.`
+  )}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300 transition hover:bg-emerald-500/20"
+>
+  WhatsApp Customer ↗
+</a>
+                <a
+                  href={`mailto:${enquiry.email}`}
+                  className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
+                >
+                  Email Customer
+                </a>
 
-              <p className="mt-4 text-xs text-slate-500">
-                {new Date(enquiry.createdAt).toLocaleString("en-IN")}
-              </p>
-            </div>
+                <a
+                  href={`tel:${enquiry.phone}`}
+                  className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300 transition hover:bg-white/[0.1] hover:text-white"
+                >
+                  Call Customer
+                </a>
+              </div>
+            </article>
           ))}
 
           {enquiries.length === 0 && (

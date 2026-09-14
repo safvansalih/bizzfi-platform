@@ -27,18 +27,22 @@ model ContactEnquiry {
 }
 
 model ConsultationRequest {
-  id            String   @id @default(cuid())
-  name          String   @db.VarChar(100)
-  company       String?  @db.VarChar(150)
-  email         String   @db.VarChar(254)
-  phone         String   @db.VarChar(20)
-  topic         String   @db.VarChar(100)
-  preferredDate DateTime @db.Date
-  preferredTime String   @db.VarChar(30)
-  message       String
-  status        String   @default("NEW") @db.VarChar(30)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String            @id @default(cuid())
+  name            String            @db.VarChar(100)
+  company         String?           @db.VarChar(150)
+  email           String            @db.VarChar(254)
+  phone           String            @db.VarChar(20)
+  topic           String            @db.VarChar(100)
+  preferredDate   DateTime          @db.Date
+  preferredTime   String            @db.VarChar(30)
+  message         String
+  status          String            @default("NEW") @db.VarChar(30)
+  nextFollowUpAt  DateTime?
+  followUpNote    String?
+  createdAt       DateTime          @default(now())
+  followUpHistory FollowUpHistory[]
+  reminderSentAt DateTime?
+  updatedAt       DateTime          @updatedAt
 
   @@index([email])
   @@index([topic])
@@ -46,6 +50,20 @@ model ConsultationRequest {
   @@index([preferredDate])
   @@index([createdAt])
   @@map("consultation_requests")
+}
+
+model FollowUpHistory {
+  id             String    @id @default(cuid())
+  consultationId String
+  followUpAt     DateTime?
+  note           String?
+  completedAt    DateTime  @default(now())
+
+  consultation ConsultationRequest @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@index([consultationId])
+  @@index([completedAt])
+  @@map("follow_up_history")
 }
 
 model User {
@@ -62,21 +80,22 @@ model User {
   @@index([isActive])
   @@map("users")
 }
+
 model BlogPost {
-  id            String    @id @default(cuid())
-  title         String    @db.VarChar(200)
-  slug          String    @unique @db.VarChar(220)
-  excerpt       String?   @db.VarChar(500)
-  content       String
-  coverImage    String?   @db.VarChar(500)
-  category      String?   @db.VarChar(100)
-  authorId      String?
-  status        String    @default("DRAFT") @db.VarChar(20)
-  publishedAt   DateTime?
-  seoTitle      String?   @db.VarChar(200)
-  seoDescription String?  @db.VarChar(320)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  title          String    @db.VarChar(200)
+  slug           String    @unique @db.VarChar(220)
+  excerpt        String?   @db.VarChar(500)
+  content        String
+  coverImage     String?   @db.VarChar(500)
+  category       String?   @db.VarChar(100)
+  authorId       String?
+  status         String    @default("DRAFT") @db.VarChar(20)
+  publishedAt    DateTime?
+  seoTitle       String?   @db.VarChar(200)
+  seoDescription String?   @db.VarChar(320)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([status])
   @@index([category])

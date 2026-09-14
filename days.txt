@@ -1,0 +1,75 @@
+Day 15 – Blog SEO & Social Sharing
+Dynamic SEO title/description
+Open Graph metadata
+Twitter card
+Blog Article structured data
+Blog sitemap integration
+Social share buttons
+Cover image optimization
+Day 16 – Admin Dashboard Improvements
+Dashboard statistics
+Total leads count
+New/unread leads
+Consultation requests count
+Published/Draft blog count
+Recent enquiries
+Lead status management
+Day 17 – File & Image Management
+Blog cover image upload
+Image storage setup
+Image preview
+Image compression
+Remove external image URL dependency
+Day 18 – Lead Management Upgrade
+Lead status:
+New
+Contacted
+Qualified
+Proposal Sent
+Won
+Lost
+Lead notes
+Follow-up date
+Assign lead to team member
+Lead activity history
+Day 19 – Services & Products CMS
+
+Admin വഴി manage ചെയ്യാൻ:
+
+Services add/edit/delete
+Products add/edit/delete
+Pricing
+Features
+Images
+SEO metadata
+Publish/unpublish
+Day 20 – Customer/Client Portal
+Customer login
+Project status
+Quotations
+Invoices
+Support requests
+Documents
+Consultation history
+Day 21 – Security & Production Hardening
+
+ഇത് മുമ്പ് skip ചെയ്തതിനാൽ പ്രത്യേകം ചെയ്യണം:
+
+API authorization review
+Input validation
+Rate limiting
+Spam protection
+Secure headers
+Error handling
+Environment variable audit
+Database backup
+Admin session security
+Day 22 – Performance & Final QA
+Mobile responsiveness
+Page speed
+Image optimization
+Broken links check
+Form testing
+SEO validation
+Production database testing
+Vercel deployment testing

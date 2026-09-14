@@ -1,6 +1,41 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
+import ConsultationStatusSelect from "@/components/admin/consultation-status-select";
+
+function getWhatsAppNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+
+  if (digits.length === 10) {
+    return `91${digits}`;
+  }
+
+  return digits;
+}
+
+function getWhatsAppMessage(consultation: {
+  name: string;
+  topic: string;
+  preferredDate: Date | string;
+  preferredTime: string;
+}) {
+  const preferredDate = consultation.preferredDate
+    ? new Date(consultation.preferredDate).toLocaleDateString("en-IN")
+    : "Not specified";
+
+  return `Hello ${consultation.name}, this is Bizzfi.
+
+Thank you for booking a consultation with us.
+
+Topic: ${consultation.topic}
+Preferred Date: ${preferredDate}
+Preferred Time: ${consultation.preferredTime || "Not specified"}
+
+We will contact you shortly to confirm your consultation.
+
+Thank you,
+Bizzfi`;
+}
 
 type ConsultationsPageProps = {
   searchParams: Promise<{
@@ -82,9 +117,7 @@ export default async function AdminConsultationsPage({
             ← Back to Dashboard
           </a>
 
-          <p className="text-sm text-slate-400">
-            Bizzfi Administration
-          </p>
+          <p className="text-sm text-slate-400">Bizzfi Administration</p>
 
           <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
             Consultation Requests
@@ -142,7 +175,7 @@ export default async function AdminConsultationsPage({
         {/* Desktop Table */}
         <div className="hidden overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] md:block">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-left">
+            <table className="w-full min-w-[1250px] text-left">
               <thead className="border-b border-white/10 bg-white/[0.03]">
                 <tr>
                   <th className="px-5 py-4 text-sm font-semibold text-slate-300">
@@ -170,6 +203,10 @@ export default async function AdminConsultationsPage({
                   </th>
 
                   <th className="px-5 py-4 text-sm font-semibold text-slate-300">
+                    Actions
+                  </th>
+
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-300">
                     Submitted
                   </th>
                 </tr>
@@ -181,10 +218,14 @@ export default async function AdminConsultationsPage({
                     key={consultation.id}
                     className="transition hover:bg-white/[0.03]"
                   >
+                    {/* Customer */}
                     <td className="px-5 py-5 align-top">
-                      <p className="font-semibold text-white">
-                        {consultation.name}
-                      </p>
+                      <a
+  href={`/admin/consultations/${consultation.id}`}
+  className="font-semibold text-white hover:text-blue-300 hover:underline"
+>
+  {consultation.name}
+</a>
 
                       {consultation.company && (
                         <p className="mt-1 text-sm text-slate-400">
@@ -193,42 +234,110 @@ export default async function AdminConsultationsPage({
                       )}
                     </td>
 
+                    {/* Contact */}
                     <td className="px-5 py-5 align-top">
-                      <p className="text-sm text-slate-300">
+                      <a
+                        href={`mailto:${consultation.email}`}
+                        className="block text-sm text-slate-300 hover:text-white"
+                      >
                         {consultation.email}
-                      </p>
+                      </a>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <a
+                        href={`tel:${consultation.phone}`}
+                        className="mt-1 block text-sm text-slate-500 hover:text-white"
+                      >
                         {consultation.phone}
-                      </p>
+                      </a>
                     </td>
 
+                    {/* Topic */}
                     <td className="px-5 py-5 align-top">
                       <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
                         {consultation.topic}
                       </span>
                     </td>
 
+                    {/* Preferred Date */}
                     <td className="whitespace-nowrap px-5 py-5 align-top text-sm text-slate-300">
                       {new Date(
                         consultation.preferredDate
                       ).toLocaleDateString("en-IN")}
                     </td>
 
+                    {/* Preferred Time */}
                     <td className="whitespace-nowrap px-5 py-5 align-top text-sm text-slate-400">
                       {consultation.preferredTime}
                     </td>
 
+                    {/* Status */}
                     <td className="px-5 py-5 align-top">
-                      <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-300">
-                        {consultation.status}
-                      </span>
+                      <ConsultationStatusSelect
+                        consultationId={consultation.id}
+                        initialStatus={consultation.status}
+                      />
                     </td>
 
+                    {/* Actions */}
+                    <td className="px-5 py-5 align-top">
+                      <div className="flex flex-col gap-2">
+                        <a
+                          href={`https://wa.me/${getWhatsAppNumber(
+                            consultation.phone
+                          )}?text=${encodeURIComponent(
+                            getWhatsAppMessage(consultation)
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center whitespace-nowrap rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+                        >
+                          WhatsApp ↗
+                        </a>
+
+                        <a
+                          href={`tel:${consultation.phone}`}
+                          className="inline-flex items-center whitespace-nowrap rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        >
+                          Call Customer ☎
+                        </a>
+
+                        <a
+                          href={`mailto:${consultation.email}?subject=${encodeURIComponent(
+                            `Bizzfi Consultation - ${consultation.topic}`
+                          )}&body=${encodeURIComponent(
+                            `Hello ${consultation.name},
+
+Thank you for booking a consultation with Bizzfi.
+
+Topic: ${consultation.topic}
+Preferred Date: ${
+                              consultation.preferredDate
+                                ? new Date(
+                                    consultation.preferredDate
+                                  ).toLocaleDateString("en-IN")
+                                : "Not specified"
+                            }
+Preferred Time: ${
+                              consultation.preferredTime || "Not specified"
+                            }
+
+We will contact you shortly to confirm your consultation.
+
+Thank you,
+Bizzfi`
+                          )}`}
+                          className="inline-flex items-center whitespace-nowrap rounded-lg bg-purple-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
+                        >
+                          Email Customer ✉
+                        </a>
+                      </div>
+                    </td>
+
+                    {/* Submitted */}
                     <td className="whitespace-nowrap px-5 py-5 align-top text-sm text-slate-400">
-                      {new Date(
-                        consultation.createdAt
-                      ).toLocaleString("en-IN")}
+                      {new Date(consultation.createdAt).toLocaleString(
+                        "en-IN"
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -236,7 +345,7 @@ export default async function AdminConsultationsPage({
                 {consultations.length === 0 && (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-5 py-12 text-center text-slate-500"
                     >
                       No consultation requests found.
@@ -255,11 +364,17 @@ export default async function AdminConsultationsPage({
               key={consultation.id}
               className="rounded-2xl border border-white/10 bg-white/[0.05] p-5"
             >
+              {/* Customer Header */}
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-semibold text-white">
-                    {consultation.name}
-                  </h2>
+                  <h2>
+  <a
+    href={`/admin/consultations/${consultation.id}`}
+    className="font-semibold text-white hover:text-blue-300 hover:underline"
+  >
+    {consultation.name}
+  </a>
+</h2>
 
                   {consultation.company && (
                     <p className="mt-1 text-sm text-slate-400">
@@ -273,18 +388,29 @@ export default async function AdminConsultationsPage({
                 </span>
               </div>
 
+              {/* Consultation Details */}
               <div className="mt-4 space-y-2 text-sm">
                 <p className="text-slate-300">
-                  📧 {consultation.email}
+                  📧{" "}
+                  <a
+                    href={`mailto:${consultation.email}`}
+                    className="hover:text-white"
+                  >
+                    {consultation.email}
+                  </a>
                 </p>
 
                 <p className="text-slate-400">
-                  📱 {consultation.phone}
+                  📱{" "}
+                  <a
+                    href={`tel:${consultation.phone}`}
+                    className="hover:text-white"
+                  >
+                    {consultation.phone}
+                  </a>
                 </p>
 
-                <p className="text-slate-300">
-                  💬 {consultation.topic}
-                </p>
+                <p className="text-slate-300">💬 {consultation.topic}</p>
 
                 <p className="text-slate-400">
                   📅{" "}
@@ -298,17 +424,78 @@ export default async function AdminConsultationsPage({
                 </p>
               </div>
 
+              {/* Message */}
               <div className="mt-4 border-t border-white/10 pt-4">
                 <p className="text-sm leading-6 text-slate-400">
                   {consultation.message}
                 </p>
               </div>
 
+              {/* Status Update */}
+              <div className="mt-4">
+                <ConsultationStatusSelect
+                  consultationId={consultation.id}
+                  initialStatus={consultation.status}
+                />
+              </div>
+
+              {/* Customer Actions */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={`https://wa.me/${getWhatsAppNumber(
+                    consultation.phone
+                  )}?text=${encodeURIComponent(
+                    getWhatsAppMessage(consultation)
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+                >
+                  WhatsApp Customer ↗
+                </a>
+
+                <a
+                  href={`tel:${consultation.phone}`}
+                  className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  Call Customer ☎
+                </a>
+
+                <a
+                  href={`mailto:${consultation.email}?subject=${encodeURIComponent(
+                    `Bizzfi Consultation - ${consultation.topic}`
+                  )}&body=${encodeURIComponent(
+                    `Hello ${consultation.name},
+
+Thank you for booking a consultation with Bizzfi.
+
+Topic: ${consultation.topic}
+Preferred Date: ${
+                      consultation.preferredDate
+                        ? new Date(
+                            consultation.preferredDate
+                          ).toLocaleDateString("en-IN")
+                        : "Not specified"
+                    }
+Preferred Time: ${
+                      consultation.preferredTime || "Not specified"
+                    }
+
+We will contact you shortly to confirm your consultation.
+
+Thank you,
+Bizzfi`
+                  )}`}
+                  className="inline-flex items-center rounded-lg bg-purple-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
+                >
+                  Email Customer ✉
+                </a>
+              </div>
+
+              {/* Submitted */}
               <p className="mt-4 text-xs text-slate-500">
                 Submitted{" "}
-                {new Date(
-                  consultation.createdAt
-                ).toLocaleString("en-IN")}
+                {new Date(consultation.createdAt).toLocaleString("en-IN")}
               </p>
             </div>
           ))}
