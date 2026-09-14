@@ -18,6 +18,10 @@ model ContactEnquiry {
   status    String   @default("NEW") @db.VarChar(30)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  odooLeadId       Int?
+  odooSyncStatus   String?
+  odooSyncedAt     DateTime?
+  odooSyncError    String?
 
   @@index([email])
   @@index([service])
@@ -43,6 +47,10 @@ model ConsultationRequest {
   followUpHistory FollowUpHistory[]
   reminderSentAt DateTime?
   updatedAt       DateTime          @updatedAt
+  odooLeadId       Int?
+  odooSyncStatus   String?
+  odooSyncedAt     DateTime?
+  odooSyncError    String?
 
   @@index([email])
   @@index([topic])

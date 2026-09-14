@@ -503,6 +503,8 @@ export async function POST(request: Request) {
         ] = `Bearer ${ODOO_API_TOKEN}`;
       }
 
+      console.log("Calling Odoo lead API:", ODOO_API_URL);
+console.log("Odoo token exists:", Boolean(ODOO_API_TOKEN));
       odooResponse = await fetch(
         ODOO_API_URL,
         {
@@ -534,34 +536,35 @@ export async function POST(request: Request) {
      */
     let odooData: OdooLeadResponse;
 
-    try {
-      odooData =
-        (await odooResponse.json()) as OdooLeadResponse;
-    } catch {
-      console.error(
-        "Odoo returned an invalid JSON response."
-      );
+try {
+  const rawResponse = await odooResponse.text();
 
-      return apiJsonResponse(
-        {
-          success: false,
-          message:
-            "Lead service is temporarily unavailable.",
-        },
-        {
-          status: 502,
-        }
-      );
+  console.log("Odoo HTTP status:", odooResponse.status);
+  console.log("Odoo response body:", rawResponse);
+
+  odooData = JSON.parse(rawResponse) as OdooLeadResponse;
+} catch (error) {
+  console.error("Odoo returned invalid JSON:", error);
+
+  return apiJsonResponse(
+    {
+      success: false,
+      message: "Lead service is temporarily unavailable.",
+    },
+    {
+      status: 502,
     }
+  );
+}
 
     /*
      * Handle HTTP errors
      */
     if (!odooResponse.ok) {
-      console.error(
-        "Odoo lead API returned HTTP error:",
-        odooResponse.status
-      );
+  console.error("Odoo lead API returned HTTP error:", {
+    status: odooResponse.status,
+    statusText: odooResponse.statusText,
+  });
 
       return apiJsonResponse(
         {

@@ -8,7 +8,7 @@ export default function SendRemindersButton() {
 
   async function sendReminders() {
     const confirmed = window.confirm(
-      "Due follow-up reminders ഇപ്പോൾ അയക്കണോ?"
+      "Do you want to send due follow-up reminders now?"
     );
 
     if (!confirmed) return;
