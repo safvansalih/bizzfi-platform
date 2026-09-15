@@ -110,6 +110,24 @@ export async function POST(
         ? submittedData.phone.trim()
         : null;
 
+        const phoneField = form.fields.find((field) => {
+  const key = field.fieldKey.toLowerCase();
+  const label = field.label.toLowerCase();
+
+  return (
+    key.includes("phone") ||
+    key.includes("mobile") ||
+    key.includes("whatsapp") ||
+    label.includes("phone") ||
+    label.includes("mobile") ||
+    label.includes("whatsapp")
+  );
+});
+
+const phoneValue = phoneField
+  ? String(submittedData[phoneField.fieldKey] || "")
+  : "";
+
     // Required fields validation
     for (const field of form.fields) {
       if (!field.required) {
@@ -136,11 +154,10 @@ export async function POST(
     const submission = await prisma.metaAdFormSubmission.create({
       data: {
         formId: form.id,
-        fullName,
-        email,
-        phone,
-       rawPayload: submittedData as any,
-
+    fullName: fullName || null,
+    email: email || null,
+    phone: phoneValue || null,
+    rawPayload: submittedData as any,
         answers: {
           create: form.fields
             .filter(
