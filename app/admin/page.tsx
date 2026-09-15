@@ -399,14 +399,12 @@ export default async function AdminDashboard() {
       </div>
     </div>
 
-    <a
-      href="https://erp.bizzfi.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-    >
-      Open Odoo CRM ↗
-    </a>
+    <Link
+  href="/admin/meta-forms"
+  className="rounded-lg border px-4 py-3 hover:bg-gray-50"
+>
+  Meta Ads Forms
+</Link>
   </div>
 </section>
 
