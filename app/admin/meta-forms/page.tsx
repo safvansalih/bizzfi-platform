@@ -352,9 +352,28 @@ export default function MetaFormsPage() {
                           {form.name}
                         </h3>
 
-                        <p className="mt-1 break-all text-sm text-gray-500">
-                          /{form.slug}
-                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+  <a
+    href={`https://www.bizzfi.com/lead/${form.slug}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="break-all text-sm font-medium text-blue-600 underline hover:text-blue-800"
+  >
+    {`https://www.bizzfi.com/lead/${form.slug}`}
+  </a>
+
+  <button
+    type="button"
+    onClick={() =>
+      navigator.clipboard.writeText(
+        `https://www.bizzfi.com/lead/${form.slug}`,
+      )
+    }
+    className="rounded-md border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
+  >
+    Copy
+  </button>
+</div>
 
                         {form.campaignName && (
                           <p className="mt-2 text-sm text-gray-700">
