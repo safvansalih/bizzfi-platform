@@ -8,20 +8,20 @@ datasource db {
 }
 
 model ContactEnquiry {
-  id        String   @id @default(cuid())
-  name      String   @db.VarChar(100)
-  company   String?  @db.VarChar(150)
-  email     String   @db.VarChar(254)
-  phone     String   @db.VarChar(20)
-  service   String   @db.VarChar(100)
-  message   String
-  status    String   @default("NEW") @db.VarChar(30)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  odooLeadId       Int?
-  odooSyncStatus   String?
-  odooSyncedAt     DateTime?
-  odooSyncError    String?
+  id             String    @id @default(cuid())
+  name           String    @db.VarChar(100)
+  company        String?   @db.VarChar(150)
+  email          String    @db.VarChar(254)
+  phone          String    @db.VarChar(20)
+  service        String    @db.VarChar(100)
+  message        String
+  status         String    @default("NEW") @db.VarChar(30)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  odooLeadId     Int?
+  odooSyncError  String?
+  odooSyncStatus String?
+  odooSyncedAt   DateTime?
 
   @@index([email])
   @@index([service])
@@ -41,16 +41,16 @@ model ConsultationRequest {
   preferredTime   String            @db.VarChar(30)
   message         String
   status          String            @default("NEW") @db.VarChar(30)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   nextFollowUpAt  DateTime?
   followUpNote    String?
-  createdAt       DateTime          @default(now())
+  reminderSentAt  DateTime?
+  odooLeadId      Int?
+  odooSyncError   String?
+  odooSyncStatus  String?
+  odooSyncedAt    DateTime?
   followUpHistory FollowUpHistory[]
-  reminderSentAt DateTime?
-  updatedAt       DateTime          @updatedAt
-  odooLeadId       Int?
-  odooSyncStatus   String?
-  odooSyncedAt     DateTime?
-  odooSyncError    String?
 
   @@index([email])
   @@index([topic])
@@ -61,13 +61,12 @@ model ConsultationRequest {
 }
 
 model FollowUpHistory {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   consultationId String
   followUpAt     DateTime?
   note           String?
-  completedAt    DateTime  @default(now())
-
-  consultation ConsultationRequest @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  completedAt    DateTime            @default(now())
+  consultation   ConsultationRequest @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 
   @@index([consultationId])
   @@index([completedAt])
@@ -110,4 +109,67 @@ model BlogPost {
   @@index([publishedAt])
   @@index([createdAt])
   @@map("blog_posts")
+}
+
+model MetaAdForm {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  campaignName String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  fields      MetaAdFormField[]
+  submissions MetaAdFormSubmission[]
+
+  @@map("meta_ad_forms")
+}
+
+model MetaAdFormField {
+  id        String   @id @default(cuid())
+  formId    String
+  label     String
+  fieldKey  String
+  fieldType String   @default("text")
+  required  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  options   Json?
+  createdAt DateTime @default(now())
+
+  form              MetaAdForm         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  metaAdFormAnswers MetaAdFormAnswer[]
+
+  @@unique([formId, fieldKey])
+  @@map("meta_ad_form_fields")
+}
+
+model MetaAdFormSubmission {
+  id         String   @id @default(cuid())
+  formId     String
+  metaLeadId String?
+  fullName   String?
+  email      String?
+  phone      String?
+  rawPayload Json?
+  createdAt  DateTime @default(now())
+
+  form    MetaAdForm         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers MetaAdFormAnswer[]
+
+  @@map("meta_ad_form_submissions")
+}
+
+model MetaAdFormAnswer {
+  id           String  @id @default(cuid())
+  submissionId String
+  fieldId      String
+  value        String?
+
+  submission MetaAdFormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  field      MetaAdFormField      @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, fieldId])
+  @@map("meta_ad_form_answers")
 }
