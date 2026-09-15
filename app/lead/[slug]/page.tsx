@@ -1,6 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useState,
+} from "react";
 import { useParams } from "next/navigation";
 
 type FormField = {
@@ -10,6 +15,7 @@ type FormField = {
   fieldType: string;
   required: boolean;
   options: unknown;
+  placeholder?: string | null;
 };
 
 type PublicForm = {
@@ -36,26 +42,36 @@ export default function PublicMetaFormPage() {
     async function loadForm() {
       try {
         setLoading(true);
+        setError("");
 
         const response = await fetch(
           `/api/public/meta-forms/${slug}`,
           {
+            method: "GET",
             cache: "no-store",
-          },
+          }
         );
 
         const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || "Form not found");
+        if (!response.ok || !data.success || !data.form) {
+          throw new Error(
+            data.message || "Form not found"
+          );
         }
 
-        setForm(data);
+        // Important: API response contains form inside data.form
+        setForm(data.form);
       } catch (error) {
+        console.error(
+          "Public form loading error:",
+          error
+        );
+
         setError(
           error instanceof Error
             ? error.message
-            : "Unable to load form",
+            : "Unable to load form"
         );
       } finally {
         setLoading(false);
@@ -67,14 +83,19 @@ export default function PublicMetaFormPage() {
     }
   }, [slug]);
 
-  function updateValue(fieldKey: string, value: string) {
+  function updateValue(
+    fieldKey: string,
+    value: string
+  ) {
     setValues((previous) => ({
       ...previous,
       [fieldKey]: value,
     }));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     if (!form) {
@@ -94,25 +115,35 @@ export default function PublicMetaFormPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
-        },
+        }
       );
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Submission failed");
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            data.error ||
+            "Submission failed"
+        );
       }
 
       setSuccess(
-        data.message || "Your enquiry has been submitted successfully.",
+        data.message ||
+          "Your enquiry has been submitted successfully."
       );
 
       setValues({});
     } catch (error) {
+      console.error(
+        "Form submission error:",
+        error
+      );
+
       setError(
         error instanceof Error
           ? error.message
-          : "Unable to submit form",
+          : "Unable to submit form"
       );
     } finally {
       setSubmitting(false);
@@ -127,32 +158,55 @@ export default function PublicMetaFormPage() {
       name: field.fieldKey,
       value,
       required: field.required,
+      placeholder: field.placeholder || "",
       onChange: (
-        event: React.ChangeEvent<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >,
-      ) => updateValue(field.fieldKey, event.target.value),
+        event: ChangeEvent<
+          HTMLInputElement |
+            HTMLTextAreaElement |
+            HTMLSelectElement
+        >
+      ) =>
+        updateValue(
+          field.fieldKey,
+          event.target.value
+        ),
       className:
-        "mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 " +
-        "text-gray-900 outline-none focus:border-blue-600 " +
-        "focus:ring-2 focus:ring-blue-100",
+        "mt-2 w-full rounded-lg border border-gray-300 " +
+        "px-4 py-3 text-gray-900 outline-none " +
+        "focus:border-blue-600 focus:ring-2 " +
+        "focus:ring-blue-100",
     };
 
-    if (field.fieldType === "textarea") {
-      return <textarea {...commonProps} rows={4} />;
+    if (
+      field.fieldType === "textarea"
+    ) {
+      return (
+        <textarea
+          {...commonProps}
+          rows={4}
+        />
+      );
     }
 
-    if (field.fieldType === "select") {
+    if (
+      field.fieldType === "select" ||
+      field.fieldType === "dropdown"
+    ) {
       const options = Array.isArray(field.options)
         ? field.options
         : [];
 
       return (
         <select {...commonProps}>
-          <option value="">Select an option</option>
+          <option value="">
+            Select an option
+          </option>
 
           {options.map((option) => (
-            <option key={String(option)} value={String(option)}>
+            <option
+              key={String(option)}
+              value={String(option)}
+            >
               {String(option)}
             </option>
           ))}
@@ -171,13 +225,20 @@ export default function PublicMetaFormPage() {
               ? "email"
               : "text";
 
-    return <input {...commonProps} type={inputType} />;
+    return (
+      <input
+        {...commonProps}
+        type={inputType}
+      />
+    );
   }
 
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Loading form...</p>
+        <p className="text-gray-600">
+          Loading form...
+        </p>
       </main>
     );
   }
@@ -191,7 +252,8 @@ export default function PublicMetaFormPage() {
           </h1>
 
           <p className="mt-2 text-red-600">
-            {error || "This form is unavailable."}
+            {error ||
+              "This form is unavailable."}
           </p>
         </div>
       </main>
@@ -226,7 +288,10 @@ export default function PublicMetaFormPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {form.fields.map((field) => (
               <div key={field.id}>
                 <label
@@ -236,7 +301,9 @@ export default function PublicMetaFormPage() {
                   {field.label}
 
                   {field.required && (
-                    <span className="ml-1 text-red-600">*</span>
+                    <span className="ml-1 text-red-600">
+                      *
+                    </span>
                   )}
                 </label>
 
@@ -247,16 +314,17 @@ export default function PublicMetaFormPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-lg bg-blue-600 px-5 py-3
-                font-semibold text-white transition hover:bg-blue-700
-                disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {submitting ? "Submitting..." : "Submit Enquiry"}
+              {submitting
+                ? "Submitting..."
+                : "Submit Enquiry"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-gray-500">
-            Your information will be used to contact you regarding your enquiry.
+            Your information will be used to contact
+            you regarding your enquiry.
           </p>
         </div>
       </div>
