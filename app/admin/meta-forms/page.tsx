@@ -22,6 +22,7 @@ export default function MetaFormsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -101,7 +102,42 @@ export default function MetaFormsPage() {
 
     setSlug(cleanedSlug);
   }
+async function handleDeleteForm(formId: string, formName: string) {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${formName}"?\n\nThis action cannot be undone.`,
+  );
 
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setError("");
+    setDeletingId(formId);
+
+    const response = await fetch(`/api/admin/meta-forms/${formId}`, {
+      method: "DELETE",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to delete form");
+    }
+
+    await loadForms();
+  } catch (error) {
+    console.error("DELETE FORM ERROR:", error);
+
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Unable to delete form",
+    );
+  } finally {
+    setDeletingId(null);
+  }
+}
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -373,6 +409,7 @@ export default function MetaFormsPage() {
   >
     Copy
   </button>
+
 </div>
 
                         {form.campaignName && (
@@ -416,16 +453,28 @@ export default function MetaFormsPage() {
                       </span>
                     </div>
 
-                    <div className="mt-4">
-                      <Link
-                        href={`/admin/meta-forms/${form.id}`}
-                        className="inline-flex rounded-lg bg-gray-900 px-4 py-2
-                          text-sm font-medium text-white transition
-                          hover:bg-gray-700"
-                      >
-                        Manage Fields
-                      </Link>
-                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+  <Link
+    href={`/admin/meta-forms/${form.id}`}
+    className="inline-flex rounded-lg bg-gray-900 px-4 py-2
+      text-sm font-medium text-white transition
+      hover:bg-gray-700"
+  >
+    Manage Fields
+  </Link>
+
+  <button
+    type="button"
+    onClick={() => handleDeleteForm(form.id, form.name)}
+    disabled={deletingId === form.id}
+    className="inline-flex rounded-lg bg-red-600 px-4 py-2
+      text-sm font-medium text-white transition
+      hover:bg-red-700
+      disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {deletingId === form.id ? "Deleting..." : "Delete Form"}
+  </button>
+</div>
                   </div>
                 ))}
               </div>
