@@ -4,6 +4,18 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import SendRemindersButton from "@/components/admin/send-reminders-button";
 
+function getWhatsAppNumber(phone: string | null) {
+  if (!phone) return "";
+
+  const digits = phone.replace(/\D/g, "");
+
+  if (digits.length === 10) {
+    return `91${digits}`;
+  }
+
+  return digits;
+}
+
 export default async function AdminDashboard() {
   const session = await auth();
 
@@ -26,7 +38,8 @@ export default async function AdminDashboard() {
     completedFollowUps,
     recentEnquiries,
     recentConsultations,
-    recentBlogPosts,
+    recentMetaLeads,
+    totalMetaLeads,
   ] = await Promise.all([
     prisma.contactEnquiry.count(),
 
@@ -105,18 +118,27 @@ export default async function AdminDashboard() {
       },
     }),
 
-    prisma.blogPost.findMany({
+    prisma.metaAdFormSubmission.findMany({
       orderBy: {
         createdAt: "desc",
       },
       take: 5,
       select: {
         id: true,
-        title: true,
-        status: true,
+        fullName: true,
+        email: true,
+        phone: true,
         createdAt: true,
+        form: {
+          select: {
+            name: true,
+            campaignName: true,
+          },
+        },
       },
     }),
+
+    prisma.metaAdFormSubmission.count(),
   ]);
 
   return (
@@ -154,7 +176,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Statistics */}
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
           <Link
             href="/admin/enquiries"
             className="group rounded-2xl border border-white/10 bg-white/[0.05] p-6 transition hover:border-white/20 hover:bg-white/[0.08]"
@@ -233,6 +255,33 @@ export default async function AdminDashboard() {
 
             <p className="mt-5 text-sm font-medium text-slate-300">
               Manage blog posts
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/meta-leads"
+            className="group rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-6 transition hover:border-emerald-300/40 hover:bg-emerald-500/15"
+          >
+            <div className="flex items-start justify-between">
+              <p className="text-sm text-emerald-200">
+                Meta Ads Leads
+              </p>
+
+              <span className="text-emerald-300 transition group-hover:text-white">
+                →
+              </span>
+            </div>
+
+            <p className="mt-3 text-3xl font-bold text-emerald-100">
+              {totalMetaLeads}
+            </p>
+
+            <p className="mt-2 text-sm text-emerald-200/70">
+              Leads from Meta forms
+            </p>
+
+            <p className="mt-5 text-sm font-medium text-emerald-100">
+              View Meta leads
             </p>
           </Link>
 
@@ -351,62 +400,69 @@ export default async function AdminDashboard() {
         </section>
 
         {/* Quick Actions */}
-<section className="mt-10">
-  <h2 className="mb-4 text-lg font-semibold">
-    Quick Actions
-  </h2>
+        <section className="mt-10">
+          <h2 className="mb-4 text-lg font-semibold">
+            Quick Actions
+          </h2>
 
-  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-    <Link
-      href="/admin/blog/new"
-      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-    >
-      + Create Blog Post
-    </Link>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <Link
+              href="/admin/blog/new"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              + Create Blog Post
+            </Link>
 
-    <Link
-      href="/admin/enquiries"
-      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-    >
-      Manage Contact Enquiries
-    </Link>
+            <Link
+              href="/admin/enquiries"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              Manage Contact Enquiries
+            </Link>
 
-    <Link
-      href="/admin/consultations"
-      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-    >
-      Manage Consultations
-    </Link>
+            <Link
+              href="/admin/consultations"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              Manage Consultations
+            </Link>
 
-    <Link
-      href="/admin/follow-ups"
-      className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-    >
-      Follow-up Management
-    </Link>
+            <Link
+              href="/admin/follow-ups"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              Follow-up Management
+            </Link>
 
-    <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4">
-      <p className="text-sm font-semibold text-emerald-200">
-        Follow-up Reminders
-      </p>
+            <Link
+              href="/admin/meta-forms"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+            >
+              Meta Ads Forms
+            </Link>
 
-      <p className="mt-1 text-xs leading-5 text-emerald-200/70">
-        Send pending customer reminder emails.
-      </p>
+            <Link
+              href="/admin/meta-leads"
+              className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-200 transition hover:bg-emerald-500/20 hover:text-white"
+            >
+              Meta Ads Leads
+            </Link>
 
-      <div className="mt-3">
-        <SendRemindersButton />
-      </div>
-    </div>
+            <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4">
+              <p className="text-sm font-semibold text-emerald-200">
+                Follow-up Reminders
+              </p>
 
-    <Link
-  href="/admin/meta-forms"
-  className="rounded-lg border px-4 py-3 hover:bg-gray-50"
->
-  Meta Ads Forms
-</Link>
-  </div>
-</section>
+              <p className="mt-1 text-xs leading-5 text-emerald-200/70">
+                Send pending customer reminder emails.
+              </p>
+
+              <div className="mt-3">
+                <SendRemindersButton />
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Recent Activity */}
         <section className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -500,44 +556,90 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recent Blog Posts */}
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+          {/* Recent Meta Ads Leads */}
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.04] p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-semibold">
-                Recent Blog Posts
+                Recent Meta Ads Leads
               </h2>
 
               <Link
-                href="/admin/blog"
-                className="text-sm text-slate-400 hover:text-white"
+                href="/admin/meta-leads"
+                className="text-sm text-emerald-300 hover:text-white"
               >
                 View all
               </Link>
             </div>
 
             <div className="space-y-4">
-              {recentBlogPosts.length === 0 ? (
+              {recentMetaLeads.length === 0 ? (
                 <p className="text-sm text-slate-500">
-                  No blog posts yet.
+                  No Meta Ads leads yet.
                 </p>
               ) : (
-                recentBlogPosts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="border-b border-white/10 pb-3 last:border-0"
-                  >
-                    <p className="font-medium text-slate-200">
-                      {post.title}
-                    </p>
+                recentMetaLeads.map((lead) => {
+                  const whatsappNumber = getWhatsAppNumber(
+                    lead.phone
+                  );
 
-                    <p className="mt-1 text-xs text-slate-500">
-                      {post.status} ·{" "}
-                      {new Date(
-                        post.createdAt
-                      ).toLocaleDateString("en-IN")}
-                    </p>
-                  </div>
-                ))
+                  return (
+                    <div
+                      key={lead.id}
+                      className="border-b border-white/10 pb-4 last:border-0"
+                    >
+                      <p className="font-medium text-slate-200">
+                        {lead.fullName || "Unknown Customer"}
+                      </p>
+
+                      <p className="truncate text-sm text-slate-400">
+                        {lead.form.name}
+                      </p>
+
+                      {lead.form.campaignName && (
+                        <p className="truncate text-xs text-slate-500">
+                          {lead.form.campaignName}
+                        </p>
+                      )}
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        {new Date(
+                          lead.createdAt
+                        ).toLocaleDateString("en-IN")}
+                      </p>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {lead.phone && whatsappNumber && (
+                          <>
+                            <a
+                              href={`https://wa.me/${whatsappNumber}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-md border border-emerald-400/30 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-400/10"
+                            >
+                              WhatsApp
+                            </a>
+
+                            <a
+                              href={`tel:${lead.phone}`}
+                              className="rounded-md border border-blue-400/30 px-2 py-1 text-xs text-blue-300 hover:bg-blue-400/10"
+                            >
+                              Call
+                            </a>
+                          </>
+                        )}
+
+                        {lead.email && (
+                          <a
+                            href={`mailto:${lead.email}`}
+                            className="rounded-md border border-purple-400/30 px-2 py-1 text-xs text-purple-300 hover:bg-purple-400/10"
+                          >
+                            Email
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
