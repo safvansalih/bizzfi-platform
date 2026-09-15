@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
-
 const ODOO_API_URL =
   process.env.ODOO_API_URL ||
   "https://erp.bizzfi.com/api/bizzfi/lead";
 
 const ODOO_API_TOKEN = process.env.ODOO_API_TOKEN?.trim() || "";
 
-type RouteContext = {
-  params: Promise<{
-    slug: string;
-  }>;
-};
-
+/**
+ * GET
+ * Fetch active Meta Ads form by slug
+ */
 export async function GET(
   _request: NextRequest,
-  context: RouteContext,
+  context: {
+    params: Promise<{ slug: string }>;
+  }
 ) {
   try {
     const { slug } = await context.params;
 
-    const form = await prisma.metaAdForm.findUnique({
+    const form = await prisma.metaAdForm.findFirst({
       where: {
         slug,
+        isActive: true,
       },
       include: {
         fields: {
@@ -34,263 +34,307 @@ export async function GET(
       },
     });
 
-    if (!form || !form.isActive) {
+    if (!form) {
       return NextResponse.json(
         {
-          error: "Form not found",
+          success: false,
+          message: "Form not found",
         },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
     return NextResponse.json({
-      id: form.id,
-      name: form.name,
-      slug: form.slug,
-      description: form.description,
-      campaignName: form.campaignName,
-      fields: form.fields,
+      success: true,
+      form,
     });
   } catch (error) {
-    console.error("PUBLIC META FORM GET ERROR:", error);
+    console.error("Meta form GET error:", error);
 
     return NextResponse.json(
       {
-        error: "Failed to load form",
+        success: false,
+        message: "Failed to load form",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
+/**
+ * POST
+ * Submit Meta Ads form
+ */
 export async function POST(
   request: NextRequest,
-  context: RouteContext,
+  context: {
+    params: Promise<{ slug: string }>;
+  }
 ) {
   try {
     const { slug } = await context.params;
 
-    const body = await request.json();
-
-    const form = await prisma.metaAdForm.findUnique({
+    const form = await prisma.metaAdForm.findFirst({
       where: {
         slug,
+        isActive: true,
       },
       include: {
-        fields: true,
+        fields: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+        },
       },
     });
 
-    if (!form || !form.isActive) {
+    if (!form) {
       return NextResponse.json(
         {
-          error: "Form not found",
+          success: false,
+          message: "Form not found",
         },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
-    const submittedData =
-      body && typeof body === "object"
-        ? (body as Record<string, unknown>)
-        : {};
+    const body = await request.json();
 
+    const submittedData =
+      body && typeof body === "object" ? body : {};
+
+    /**
+     * Basic field extraction
+     */
     const fullName =
       typeof submittedData.full_name === "string"
         ? submittedData.full_name.trim()
-        : null;
+        : typeof submittedData.name === "string"
+          ? submittedData.name.trim()
+          : "";
 
     const email =
       typeof submittedData.email === "string"
         ? submittedData.email.trim()
-        : null;
+        : "";
 
-    const phone =
-      typeof submittedData.phone === "string"
+    /**
+     * Find phone/mobile/WhatsApp field dynamically.
+     *
+     * This supports field keys such as:
+     * - phone
+     * - mobile
+     * - mobile_number
+     * - whatsapp_number
+     *
+     * It also checks the field label.
+     */
+    const phoneField = form.fields.find((field) => {
+      const key = field.fieldKey.toLowerCase();
+      const label = field.label.toLowerCase();
+
+      return (
+        key.includes("phone") ||
+        key.includes("mobile") ||
+        key.includes("whatsapp") ||
+        label.includes("phone") ||
+        label.includes("mobile") ||
+        label.includes("whatsapp")
+      );
+    });
+
+    const phoneValue = phoneField
+      ? String(submittedData[phoneField.fieldKey] ?? "").trim()
+      : typeof submittedData.phone === "string"
         ? submittedData.phone.trim()
-        : null;
+        : typeof submittedData.mobile === "string"
+          ? submittedData.mobile.trim()
+          : typeof submittedData.mobile_number === "string"
+            ? submittedData.mobile_number.trim()
+            : "";
 
-        const phoneField = form.fields.find((field) => {
-  const key = field.fieldKey.toLowerCase();
-  const label = field.label.toLowerCase();
+    /**
+     * Validate required fields
+     */
+    const missingFields = form.fields
+      .filter((field) => field.required)
+      .filter((field) => {
+        const value = submittedData[field.fieldKey];
 
-  return (
-    key.includes("phone") ||
-    key.includes("mobile") ||
-    key.includes("whatsapp") ||
-    label.includes("phone") ||
-    label.includes("mobile") ||
-    label.includes("whatsapp")
-  );
-});
-
-const phoneValue = phoneField
-  ? String(submittedData[phoneField.fieldKey] || "")
-  : "";
-
-    // Required fields validation
-    for (const field of form.fields) {
-      if (!field.required) {
-        continue;
-      }
-
-      const value = submittedData[field.fieldKey];
-
-      if (
-        value === undefined ||
-        value === null ||
-        String(value).trim() === ""
-      ) {
-        return NextResponse.json(
-          {
-            error: `${field.label} is required`,
-          },
-          { status: 400 },
+        return (
+          value === undefined ||
+          value === null ||
+          String(value).trim() === ""
         );
-      }
+      })
+      .map((field) => field.label);
+
+    if (missingFields.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please fill all required fields",
+          missingFields,
+        },
+        { status: 400 }
+      );
     }
 
-    // Save submission in PostgreSQL
+    /**
+     * Create submission in database
+     */
     const submission = await prisma.metaAdFormSubmission.create({
       data: {
         formId: form.id,
-    fullName: fullName || null,
-    email: email || null,
-    phone: phoneValue || null,
-    rawPayload: submittedData as any,
+        fullName: fullName || null,
+        email: email || null,
+        phone: phoneValue || null,
+        rawPayload: submittedData as any,
+
         answers: {
           create: form.fields
             .filter(
               (field) =>
-                submittedData[field.fieldKey] !== undefined,
+                submittedData[field.fieldKey] !== undefined
             )
             .map((field) => ({
               fieldId: field.id,
               value: String(
-                submittedData[field.fieldKey] ?? "",
+                submittedData[field.fieldKey] ?? ""
               ),
             })),
         },
       },
-
-      include: {
-        answers: true,
-      },
     });
 
-    /*
-     * Send lead to Odoo CRM
-     *
-     * Odoo integration is secondary.
-     * Even if Odoo fails, the PostgreSQL submission
-     * will remain successfully saved.
+    /**
+     * Build Odoo internal note/message
      */
-    try {
-      const leadName =
-        fullName || `${form.name} Enquiry`;
-
-      const submittedFieldsText = Object.entries(
-        submittedData,
+    const submittedDetails = form.fields
+      .filter(
+        (field) =>
+          submittedData[field.fieldKey] !== undefined
       )
-        .map(([key, value]) => `${key}: ${String(value ?? "")}`)
-        .join("\n");
+      .map((field) => {
+        const value = String(
+          submittedData[field.fieldKey] ?? ""
+        );
 
-      const odooMessage = [
-        "Lead Source: Meta Ads",
-        `Form Name: ${form.name}`,
-        `Campaign: ${form.campaignName || "N/A"}`,
-        `Form Slug: ${form.slug}`,
-        "",
-        "Submitted Details:",
-        submittedFieldsText,
-      ].join("\n");
+        return `${field.label}: ${value}`;
+      })
+      .join("\n");
+
+    const odooMessage = [
+      `Lead Source: Meta Ads`,
+      `Form Name: ${form.name}`,
+      `Campaign: ${form.campaignName || ""}`,
+      `Form Slug: ${form.slug}`,
+      "",
+      "Submitted Details:",
+      submittedDetails,
+    ].join("\n");
+
+    /**
+     * Odoo CRM lead name
+     */
+    const leadName = fullName
+      ? `Website Enquiry - ${fullName}`
+      : `Meta Ads Enquiry - ${form.name}`;
+
+    /**
+     * Send lead to Odoo CRM
+     */
+    let odooSuccess = false;
+    let odooResponseData: unknown = null;
+
+    try {
+      const odooHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      if (ODOO_API_TOKEN) {
+        odooHeaders.Authorization = `Bearer ${ODOO_API_TOKEN}`;
+      }
 
       const odooResponse = await fetch(ODOO_API_URL, {
         method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          ...(ODOO_API_TOKEN
-            ? {
-                Authorization: `Bearer ${ODOO_API_TOKEN}`,
-              }
-            : {}),
-        },
-
+        headers: odooHeaders,
         body: JSON.stringify({
           jsonrpc: "2.0",
           method: "call",
           params: {
             name: leadName,
+            contact_name: fullName || "",
             company: "",
             email: email || "",
-            phone: phone || "",
+
+            // Send phone number to both fields
+            phone: phoneValue || "",
+            mobile: phoneValue || "",
+
             service: `Meta Ads - ${form.name}`,
             message: odooMessage,
           },
           id: 1,
         }),
-
         signal: AbortSignal.timeout(15000),
       });
 
-      const responseText = await odooResponse.text();
+      odooResponseData = await odooResponse.json();
 
-      let odooData: any = null;
+      if (odooResponse.ok) {
+        const responseObject = odooResponseData as {
+          result?: {
+            success?: boolean;
+            error?: string;
+          };
+          error?: unknown;
+        };
 
-      try {
-        odooData = responseText
-          ? JSON.parse(responseText)
-          : null;
-      } catch {
-        console.error(
-          "ODOO INVALID JSON RESPONSE:",
-          responseText,
-        );
+        if (
+          responseObject.result?.success === true ||
+          !responseObject.error
+        ) {
+          odooSuccess = true;
+        }
       }
 
-      if (
-        !odooResponse.ok ||
-        odooData?.error ||
-        !odooData?.result?.success
-      ) {
-        console.error("ODOO LEAD CREATION FAILED:", {
-          status: odooResponse.status,
-          response: odooData || responseText,
-        });
-      } else {
-        console.log("ODOO LEAD CREATED SUCCESSFULLY:", {
-          leadId: odooData.result.lead_id,
-          submissionId: submission.id,
-        });
+      if (!odooSuccess) {
+        console.error(
+          "Odoo lead creation failed:",
+          odooResponseData
+        );
       }
     } catch (odooError) {
       console.error(
-        "ODOO META LEAD INTEGRATION ERROR:",
-        odooError,
+        "Odoo API request error:",
+        odooError
       );
     }
 
+    /**
+     * Return success even if Odoo fails.
+     *
+     * The submission is already safely stored in the website database.
+     */
     return NextResponse.json(
       {
         success: true,
+        message: "Form submitted successfully",
         submissionId: submission.id,
-        message:
-          "Your enquiry has been submitted successfully.",
+        odooSuccess,
       },
-      { status: 201 },
+      { status: 201 }
     );
   } catch (error) {
-    console.error(
-      "PUBLIC META FORM SUBMISSION ERROR:",
-      error,
-    );
+    console.error("Meta form POST error:", error);
 
     return NextResponse.json(
       {
-        error: "Failed to submit form",
+        success: false,
+        message: "Something went wrong while submitting the form",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
